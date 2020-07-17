@@ -3,19 +3,8 @@
     "version": "0.0.1",
     "manifest_version": 2,
     "description": "Diff viewer for jupyter file(*.ipynb) in Github",
-    "icons": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-    },
     "content_scripts": [{
-        "matches": ["<all_urls>"],
+        "matches": ["https://github.com/*/*/pull/*"],
         "js": ["js/content.js"]
-      }],
-    "background": {
-      "persistent": false,
-      "scripts": [
-        "js/background.js"
-      ]
-    }
+      }]
   }
