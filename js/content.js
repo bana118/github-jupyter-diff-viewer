@@ -8,9 +8,10 @@ const observer = new MutationObserver(records => {
 		const prNumber = prData[3];
 		chrome.storage.local.get(null, function (items) {
 			const token = items.githubAccessToken;
-			const url = `https://api.github.com/repos/${owner}/${repo}/pulls/${prNumber}/files?access_token=${token}`;
+			const url = `https://api.github.com/repos/${owner}/${repo}/pulls/${prNumber}/files`;
 			var request = new XMLHttpRequest();
 			request.open('GET', url);
+			request.setRequestHeader("Authorization", `token ${token}`);
 			request.onreadystatechange = function () {
 				if (request.readyState != 4) {
 					console.log("now sending...")
