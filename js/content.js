@@ -16,7 +16,7 @@ const observer = new MutationObserver(records => {
 				if (request.readyState != 4) {
 					console.log("now sending...")
 				} else if (request.status != 200) {
-					console.log(`fail! status=${request.status}`)
+					console.error(`Github API fail! status=${request.status}`)
 				} else {
 					const result = request.responseText;
 					console.log(result);
