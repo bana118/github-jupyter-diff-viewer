@@ -3,8 +3,15 @@
     "version": "0.0.1",
     "manifest_version": 2,
     "description": "Diff viewer for jupyter file(*.ipynb) in Github",
+    "permissions": [
+      "storage"
+    ],
     "content_scripts": [{
         "matches": ["https://github.com/*/*/pull/*"],
         "js": ["js/content.js"]
-      }]
+    }],
+    "options_ui": {
+        "page": "options/options.html",
+        "chrome_style": true
+    }
   }
