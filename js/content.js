@@ -1,4 +1,5 @@
 const target = document.body;
+const prefix = "banatech-github-jupyter-diff-viewer";
 const observer = new MutationObserver(records => {
 	const pattern = /https:\/\/github.com\/(.+)\/(.+)\/pull\/(\d+)\/files/;
 	if (pattern.test(location.href)) {
@@ -21,27 +22,32 @@ const observer = new MutationObserver(records => {
 				} else {
 					const prFilesInfo = request.responseText;
 					const prFilesInfoJson = JSON.parse(prFilesInfo);
-					console.log(prFilesInfoJson);
+					//console.log(prFilesInfoJson);
 					const jupyterFileRegExp = /\.ipynb$/;
 					const jupyterFilesInfoJson = prFilesInfoJson.filter(prFileInfoJson => jupyterFileRegExp.test(prFileInfoJson.filename));
-					for(jupyterFileInfoJson of jupyterFilesInfoJson){
+					for (jupyterFileInfoJson of jupyterFilesInfoJson) {
 						const blobUrl = `https://api.github.com/repos/${owner}/${repo}/git/blobs/${jupyterFileInfoJson.sha}`;
-						console.log(blobUrl);
+						const fileHeaderElement = document.querySelector(`[data-path="${jupyterFileInfoJson.filename}"]`);
+						const diffHash = fileHeaderElement.dataset.anchor;
+						const fileContainerElement = document.getElementById(diffHash);
+						const diffPatch = jupyterFileInfoJson.patch;
 						const rawFileRequest = new XMLHttpRequest();
 						rawFileRequest.open("GET", blobUrl);
 						rawFileRequest.setRequestHeader("Authorization", `token ${token}`);
 						rawFileRequest.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 						rawFileRequest.onreadystatechange = function () {
-							if(rawFileRequest.readyState !== 4){
+							if (rawFileRequest.readyState !== 4) {
 								console.log("now raw file info requeset sending...")
-							}else if(rawFileRequest.status != 200){
+							} else if (rawFileRequest.status != 200) {
 								console.error(`Github API fail! status=${request.status}`)
-							}else{
-								console.log(rawFileRequest.responseText);
-								const fileHeaderElement = document.querySelector(`[data-path="${jupyterFileInfoJson.filename}"]`);
-								const diffHash = fileHeaderElement.dataset.anchor;
-								const fileContainerElement = document.getElementById(diffHash);
-								console.log(fileContainerElement);
+							} else {
+								// console.log(rawFileRequest.responseText);
+								const existDiffElement = document.getElementById(`${prefix}-${diffHash}`);
+								if(existDiffElement != null) {
+									existDiffElement.parentNode.removeChild(existDiffElement);
+								}
+								const diffElement = createDiffElement(diffHash, rawFileRequest.responseText, diffPatch);
+								fileContainerElement.appendChild(diffElement);
 							}
 						}
 						rawFileRequest.send(null);
@@ -52,6 +58,13 @@ const observer = new MutationObserver(records => {
 		});
 	}
 });
+
+function createDiffElement(hash, rawJupyterText, patch){
+	const diffElement = document.createElement("div");
+	diffElement.id = `${prefix}-${hash}`;
+	diffElement.innerHTML = "hoge";
+	return diffElement;
+}
 observer.observe(target, {
 	attributes: true
 });
