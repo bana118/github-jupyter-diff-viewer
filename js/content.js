@@ -88,22 +88,22 @@ function createDiffElement(hash, rawJupyterText, patch) {
 	tbodyEl.appendChild(tempTrEl);
 
 	const tempTdEl1 = document.createElement("td");
-	tempTdEl1.className = "blob-num blob-num-context js-linkable-line-number"
+	tempTdEl1.className = "blob-num blob-num-deletion js-linkable-line-number"
 	tempTdEl1.dataset.lineNumber = "130"
 	tempTrEl.appendChild(tempTdEl1);
 
 	const tempTdEl2 = document.createElement("td");
-	tempTdEl2.className = "blob-num blob-num-context js-linkable-line-number"
+	tempTdEl2.className = "blob-num blob-num-deletion js-linkable-line-number"
 	tempTdEl2.dataset.lineNumber = "130"
 	tempTrEl.appendChild(tempTdEl2);
 
 	const tempTdEl3 = document.createElement("td");
-	tempTdEl3.className = "blob-code blob-code-context";
+	tempTdEl3.className = "blob-code blob-code-deletion";
 	tempTrEl.appendChild(tempTdEl3);
 
 	const tempSpanEl1 = document.createElement("span");
-	tempSpanEl1.className = "blob-code-inner blob-code-marker";
-	tempSpanEl1.dataset.codeMarker = " ";
+	tempSpanEl1.className = "blob-code-inner blob-code-deletion";
+	tempSpanEl1.dataset.codeMarker = "-";
 	tempTdEl3.appendChild(tempSpanEl1);
 
 	const tempSpanEl2 = document.createElement("span");
