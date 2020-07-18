@@ -43,7 +43,7 @@ const observer = new MutationObserver(records => {
 							} else {
 								// console.log(rawFileRequest.responseText);
 								const existDiffElement = document.getElementById(`${prefix}-${diffHash}`);
-								if(existDiffElement != null) {
+								if (existDiffElement != null) {
 									existDiffElement.parentNode.removeChild(existDiffElement);
 								}
 								const diffElement = createDiffElement(diffHash, rawFileRequest.responseText, diffPatch);
@@ -59,12 +59,67 @@ const observer = new MutationObserver(records => {
 	}
 });
 
-function createDiffElement(hash, rawJupyterText, patch){
-	const diffElement = document.createElement("div");
-	diffElement.id = `${prefix}-${hash}`;
-	diffElement.innerHTML = "hoge";
-	return diffElement;
-}
 observer.observe(target, {
 	attributes: true
 });
+
+function createDiffElement(hash, rawJupyterText, patch) {
+	// console.log(rawJupyterText);
+	// console.log(patch);
+	const diffInfo = parse(patch);
+	console.log(diffInfo);
+	const diffElement = document.createElement("div");
+	diffElement.id = `${prefix}-${hash}`;
+	// diffElement.innerHTML = "hoge";
+
+	const blobWrapperEl = document.createElement("div");
+	blobWrapperEl.className = "data highlight js-blob-wrapper";
+	blobWrapperEl.style = "overflow-x: auto";
+	diffElement.appendChild(blobWrapperEl);
+
+	const diffTableEl = document.createElement("table");
+	diffTableEl.className = "diff-table js-diff-table tab-size";
+	blobWrapperEl.appendChild(diffTableEl);
+
+	const tbodyEl = document.createElement("tbody");
+	diffTableEl.appendChild(tbodyEl);
+
+	const tempTrEl = document.createElement("tr");
+	tbodyEl.appendChild(tempTrEl);
+
+	const tempTdEl1 = document.createElement("td");
+	tempTdEl1.className = "blob-num blob-num-context js-linkable-line-number"
+	tempTdEl1.dataset.lineNumber = "130"
+	tempTrEl.appendChild(tempTdEl1);
+
+	const tempTdEl2 = document.createElement("td");
+	tempTdEl2.className = "blob-num blob-num-context js-linkable-line-number"
+	tempTdEl2.dataset.lineNumber = "130"
+	tempTrEl.appendChild(tempTdEl2);
+
+	const tempTdEl3 = document.createElement("td");
+	tempTdEl3.className = "blob-code blob-code-context";
+	tempTrEl.appendChild(tempTdEl3);
+
+	const tempSpanEl1 = document.createElement("span");
+	tempSpanEl1.className = "blob-code-inner blob-code-marker";
+	tempSpanEl1.dataset.codeMarker = " ";
+	tempTdEl3.appendChild(tempSpanEl1);
+
+	const tempSpanEl2 = document.createElement("span");
+	tempSpanEl2.className = "pl-c";
+	tempSpanEl1.appendChild(tempSpanEl2);
+
+	const tempSpanEl3 = document.createElement("span");
+	tempSpanEl3.className = "pl-c";
+	tempSpanEl3.insertAdjacentText("afterbegin", "#");
+	tempSpanEl2.appendChild(tempSpanEl3);
+	tempSpanEl2.insertAdjacentText("beforeend", " hogehoge");
+
+
+	return diffElement;
+}
+
+function parse(patch) {
+	return patch;
+}
