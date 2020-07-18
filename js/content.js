@@ -21,6 +21,7 @@ const observer = new MutationObserver(records => {
 				} else {
 					const prFilesInfo = request.responseText;
 					const prFilesInfoJson = JSON.parse(prFilesInfo);
+					console.log(prFilesInfoJson);
 					const jupyterFileRegExp = /\.ipynb$/;
 					const jupyterFilesInfoJson = prFilesInfoJson.filter(prFileInfoJson => jupyterFileRegExp.test(prFileInfoJson.filename));
 					for(jupyterFileInfoJson of jupyterFilesInfoJson){
@@ -37,6 +38,10 @@ const observer = new MutationObserver(records => {
 								console.error(`Github API fail! status=${request.status}`)
 							}else{
 								console.log(rawFileRequest.responseText);
+								const fileHeaderElement = document.querySelector(`[data-path="${jupyterFileInfoJson.filename}"]`);
+								const diffHash = fileHeaderElement.dataset.anchor;
+								const fileContainerElement = document.getElementById(diffHash);
+								console.log(fileContainerElement);
 							}
 						}
 						rawFileRequest.send(null);
