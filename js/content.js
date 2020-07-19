@@ -87,37 +87,66 @@ function createDiffElement(hash, rawJupyterText, patch) {
 	const tbodyEl = document.createElement("tbody");
 	diffTableEl.appendChild(tbodyEl);
 
-	const tempTrEl = document.createElement("tr");
-	tbodyEl.appendChild(tempTrEl);
+	for(diffLines of diffInfo) {
+		for(diffLine of diffLines) {
+			const trEl = document.createElement("tr");
+			tbodyEl.appendChild(trEl);
 
-	const tempTdEl1 = document.createElement("td");
-	tempTdEl1.className = "blob-num blob-num-deletion js-linkable-line-number"
-	tempTdEl1.dataset.lineNumber = "code"
-	tempTrEl.appendChild(tempTdEl1);
+			const tdNumLeftEl = document.createElement("td");
+			tdNumLeftEl.className = "blob-num blob-num-context js-linkable-line-number"
+			tdNumLeftEl.dataset.lineNumber = diffLine.type;
+			trEl.appendChild(tdNumLeftEl);
 
-	const tempTdEl2 = document.createElement("td");
-	tempTdEl2.className = "blob-num blob-num-deletion js-linkable-line-number"
-	tempTdEl2.dataset.lineNumber = "In[1]"
-	tempTrEl.appendChild(tempTdEl2);
+			const tdNumRightEl = document.createElement("td");
+			tdNumRightEl.className = "blob-num blob-num-context js-linkable-line-number"
+			if(diffLine.type == "code"){
+				tdNumRightEl.dataset.lineNumber = `In[${diffLine.count}]`
+			}
+			trEl.appendChild(tdNumRightEl);
 
-	const tempTdEl3 = document.createElement("td");
-	tempTdEl3.className = "blob-code blob-code-deletion";
-	tempTrEl.appendChild(tempTdEl3);
+			const tdCodeEl = document.createElement("td");
+			tdCodeEl.className = "blob-code blob-code-context";
+			trEl.appendChild(tdCodeEl);
 
-	const tempSpanEl1 = document.createElement("span");
-	tempSpanEl1.className = "blob-code-inner blob-code-deletion";
-	tempSpanEl1.dataset.codeMarker = "-";
-	tempTdEl3.appendChild(tempSpanEl1);
+			const codeWrapperSpanEl = document.createElement("span");
+			codeWrapperSpanEl.className = "blob-code-inner blob-code-marker pl-k"
+			codeWrapperSpanEl.dataset.codeMarker = diffLine.text.slice(0,1);
+			codeWrapperSpanEl.insertAdjacentText("beforeend", diffLine.text.slice(1));
+			tdCodeEl.appendChild(codeWrapperSpanEl);
+		}
+	}
 
-	const tempSpanEl2 = document.createElement("span");
-	tempSpanEl2.className = "pl-c";
-	tempSpanEl1.appendChild(tempSpanEl2);
+	// const tempTrEl = document.createElement("tr");
+	// tbodyEl.appendChild(tempTrEl);
 
-	const tempSpanEl3 = document.createElement("span");
-	tempSpanEl3.className = "pl-c";
-	tempSpanEl3.insertAdjacentText("afterbegin", "#");
-	tempSpanEl2.appendChild(tempSpanEl3);
-	tempSpanEl2.insertAdjacentText("beforeend", " hogehoge");
+	// const tempTdEl1 = document.createElement("td");
+	// tempTdEl1.className = "blob-num blob-num-deletion js-linkable-line-number"
+	// tempTdEl1.dataset.lineNumber = "code"
+	// tempTrEl.appendChild(tempTdEl1);
+
+	// const tempTdEl2 = document.createElement("td");
+	// tempTdEl2.className = "blob-num blob-num-deletion js-linkable-line-number"
+	// tempTdEl2.dataset.lineNumber = "In[1]"
+	// tempTrEl.appendChild(tempTdEl2);
+
+	// const tempTdEl3 = document.createElement("td");
+	// tempTdEl3.className = "blob-code blob-code-deletion";
+	// tempTrEl.appendChild(tempTdEl3);
+
+	// const tempSpanEl1 = document.createElement("span");
+	// tempSpanEl1.className = "blob-code-inner blob-code-deletion";
+	// tempSpanEl1.dataset.codeMarker = "-";
+	// tempTdEl3.appendChild(tempSpanEl1);
+
+	// const tempSpanEl2 = document.createElement("span");
+	// tempSpanEl2.className = "pl-c";
+	// tempSpanEl1.appendChild(tempSpanEl2);
+
+	// const tempSpanEl3 = document.createElement("span");
+	// tempSpanEl3.className = "pl-c";
+	// tempSpanEl3.insertAdjacentText("afterbegin", "#");
+	// tempSpanEl2.appendChild(tempSpanEl3);
+	// tempSpanEl2.insertAdjacentText("beforeend", " hogehoge");
 
 
 	return diffElement;
