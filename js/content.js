@@ -139,14 +139,21 @@ function createDiffElement(hash, rawJupyterText, patch) {
 	// tempTdEl3.appendChild(tempSpanEl1);
 
 	// const tempSpanEl2 = document.createElement("span");
-	// tempSpanEl2.className = "pl-c";
+	// tempSpanEl2.className = "pl-s1";
+	// tempSpanEl2.innerHTML = "app";
 	// tempSpanEl1.appendChild(tempSpanEl2);
 
 	// const tempSpanEl3 = document.createElement("span");
-	// tempSpanEl3.className = "pl-c";
-	// tempSpanEl3.insertAdjacentText("afterbegin", "#");
-	// tempSpanEl2.appendChild(tempSpanEl3);
-	// tempSpanEl2.insertAdjacentText("beforeend", " hogehoge");
+	// tempSpanEl3.className = "pl-c1";
+	// tempSpanEl3.innerHTML = " = ";
+	// tempSpanEl1.appendChild(tempSpanEl3);
+
+	// const tempSpanEl4 = document.createElement("span");
+	// tempSpanEl4.className = "pl-v";
+	// tempSpanEl4.innerHTML = "FastAPI";
+	// tempSpanEl1.appendChild(tempSpanEl4);
+	
+	// tempSpanEl1.insertAdjacentText("beforeend", "()");
 
 
 	return diffElement;
