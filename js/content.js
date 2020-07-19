@@ -66,8 +66,8 @@ observer.observe(target, {
 function createDiffElement(hash, rawJupyterText, patch) {
 	// console.log(rawJupyterText);
 	// console.log(patch);
-	const diffInfo = parse(patch);
-	console.log(diffInfo);
+	const diffInfo = parse(rawJupyterText, patch);
+	// console.log(diffInfo);
 	const diffElement = document.createElement("div");
 	diffElement.id = `${prefix}-${hash}`;
 	// diffElement.innerHTML = "hoge";
@@ -127,6 +127,57 @@ function createDiffElement(hash, rawJupyterText, patch) {
 	return diffElement;
 }
 
-function parse(patch) {
+function parse(allJupyterText, patch) {
+	const lineInfoRegs = /@@ [-+]\d+,\d+ [-+]\d+,\d+ @@/g;
+	const lineInfo = patch.match(lineInfoRegs);
+	const diffList = patch.split(lineInfoRegs);
+	const jupyterSource = extractSourceFromJupyter(allJupyterText);
+	console.log(lineInfo);
+	console.log(diffList);
+	for(diff of diffList) {
+		const diffLines = diff.split("\n");
+	}
 	return patch;
+}
+
+function extractSourceFromJupyter(jupyter){
+	const sourceList = [];
+	const typeRegs = /"cell_type": "(.+)",/;
+	const sourceStartRegs = /"source": \[/;
+	const sourceEndRegs = /^(?! *") *\]/;
+	let extractState = "skip"; // skip, type, source
+	let type = null;
+	let lineNumber = 1;
+	let sourceJson = {};
+	let sourceLines = [];
+	for(line of jupyter.split("\n")){
+		if(extractState == "source" && !sourceEndRegs.test(line)){
+			sourceLines.push(line);
+		}
+		if(typeRegs.test(line)){
+			if(extractState != "skip"){
+				console.error(`line: ${lineNumber}, Jupyter extract error! extractState required: skip, but found ${extractState}`);
+			}
+			extractState = "type";
+			type = typeRegs.exec(line)[1];
+			sourceJson["type"] = type;
+		}else if(sourceStartRegs.test(line)){
+			if(extractState != "type"){
+				console.error(`line: ${lineNumber}, Jupyter extract error! extractState required: type, but found ${extractState}`);
+			}
+			sourceJson["start"] = lineNumber;
+			extractState = "source";
+		}else if(sourceEndRegs.test(line)){
+			if(extractState == "source"){
+				extractState = "skip";
+				sourceJson["source"] = sourceLines;
+				sourceJson["end"] = lineNumber;
+				sourceList.push(sourceJson);
+				sourceJson = {};
+				sourceLines = [];
+			}
+		}
+		lineNumber += 1;
+	}
+	return sourceList;
 }
