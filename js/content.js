@@ -150,6 +150,7 @@ function extractSourceFromJupyter(jupyter){
 	let lineNumber = 1;
 	let sourceJson = {};
 	let sourceLines = [];
+	let execCount = 1;
 	for(line of jupyter.split("\n")){
 		if(extractState == "source" && !sourceEndRegs.test(line)){
 			sourceLines.push(line);
@@ -161,6 +162,10 @@ function extractSourceFromJupyter(jupyter){
 			extractState = "type";
 			type = typeRegs.exec(line)[1];
 			sourceJson["type"] = type;
+			if(type == "code"){
+				sourceJson["count"] = execCount;
+				execCount += 1;
+			}
 		}else if(sourceStartRegs.test(line)){
 			if(extractState != "type"){
 				console.error(`line: ${lineNumber}, Jupyter extract error! extractState required: type, but found ${extractState}`);
