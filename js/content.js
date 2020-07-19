@@ -72,6 +72,13 @@ function createDiffElement(hash, rawJupyterText, patch) {
 	diffElement.id = `${prefix}-${hash}`;
 	// diffElement.innerHTML = "hoge";
 
+	const divideEl = document.createElement("hr");
+	diffElement.appendChild(divideEl);
+
+	const extensionDescriptionEl = document.createElement("p");
+	extensionDescriptionEl.innerHTML = "Github Jupyter diff viewer extension";
+	diffElement.appendChild(extensionDescriptionEl);
+
 	const blobWrapperEl = document.createElement("div");
 	blobWrapperEl.className = "data highlight js-blob-wrapper";
 	blobWrapperEl.style = "overflow-x: auto";
@@ -89,12 +96,12 @@ function createDiffElement(hash, rawJupyterText, patch) {
 
 	const tempTdEl1 = document.createElement("td");
 	tempTdEl1.className = "blob-num blob-num-deletion js-linkable-line-number"
-	tempTdEl1.dataset.lineNumber = "130"
+	tempTdEl1.dataset.lineNumber = "code"
 	tempTrEl.appendChild(tempTdEl1);
 
 	const tempTdEl2 = document.createElement("td");
 	tempTdEl2.className = "blob-num blob-num-deletion js-linkable-line-number"
-	tempTdEl2.dataset.lineNumber = "130"
+	tempTdEl2.dataset.lineNumber = "In[1]"
 	tempTrEl.appendChild(tempTdEl2);
 
 	const tempTdEl3 = document.createElement("td");
