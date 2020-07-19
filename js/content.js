@@ -64,13 +64,9 @@ observer.observe(target, {
 });
 
 function createDiffElement(hash, rawJupyterText, patch) {
-	// console.log(rawJupyterText);
-	// console.log(patch);
 	const diffInfo = parse(rawJupyterText, patch);
-	// console.log(diffInfo);
 	const diffElement = document.createElement("div");
 	diffElement.id = `${prefix}-${hash}`;
-	// diffElement.innerHTML = "hoge";
 
 	const divideEl = document.createElement("hr");
 	diffElement.appendChild(divideEl);
@@ -128,16 +124,77 @@ function createDiffElement(hash, rawJupyterText, patch) {
 }
 
 function parse(allJupyterText, patch) {
-	const lineInfoRegs = /@@ [-+]\d+,\d+ [-+]\d+,\d+ @@/g;
-	const lineInfo = patch.match(lineInfoRegs);
+	const diffInfoList = [];
+	const lineInfoRegs = /@@ [-+]\d+,\d+ [-+]\d+,\d+ @@\n/g;
+	const lineInfoList = patch.match(lineInfoRegs);
 	const diffList = patch.split(lineInfoRegs);
-	const jupyterSource = extractSourceFromJupyter(allJupyterText);
-	console.log(lineInfo);
-	console.log(diffList);
-	for(diff of diffList) {
+	diffList.splice(0, 1);
+	const lineInfoSplitRegs = / |,/;
+	const jupyterSourceList = extractSourceFromJupyter(allJupyterText);
+	for(i = 0; i < diffList.length;i++) {
+		const diffInfo = [];
+		const diff = diffList[i];
 		const diffLines = diff.split("\n");
+		const lineInfo = lineInfoList[i];
+		const splitedLineInfo = lineInfo.split(lineInfoSplitRegs);
+		const diffStartLine = Number(splitedLineInfo[3]);
+		const diffEndLine = Number(splitedLineInfo[4]) + diffStartLine - 1;
+		for(j = 0; j < jupyterSourceList.length; j++) {
+			const jupyterSource = jupyterSourceList[j];
+			if(diffStartLine >= jupyterSource.start && diffStartLine <= jupyterSource.end && diffEndLine >= jupyterSource.end){
+				for(k = 0; k < jupyterSource.end - diffStartLine; k++) {
+					if(jupyterSource.type == "code"){
+						const lineJson = {"type":jupyterSource.type, "count":jupyterSource.count, "text":diffLines[k]};
+						diffInfo.push(lineJson);
+					}else if(jupyterSource.type == "markdown"){
+						const lineJson = {"type":jupyterSource.type, "text":diffLines[k]};
+						diffInfo.push(lineJson);
+					}else{
+						console.error(`Jupyter diff parse error! jupyter source type must be code or markdown, but found ${jupyterSource.type}`);
+					}
+				}
+			}else if(diffStartLine <= jupyterSource.start && diffEndLine >= jupyterSource.end) {
+				for(k = jupyterSource.start - diffStartLine; k < jupyterSource.end - diffStartLine; k++) {
+					if(jupyterSource.type == "code"){
+						const lineJson = {"type":jupyterSource.type, "count":jupyterSource.count, "text":diffLines[k]};
+						diffInfo.push(lineJson);
+					}else if(jupyterSource.type == "markdown"){
+						const lineJson = {"type":jupyterSource.type, "text":diffLines[k]};
+						diffInfo.push(lineJson);
+					}else{
+						console.error(`Jupyter diff parse error! jupyter source type must be code or markdown, but found ${jupyterSource.type}`);
+					}
+				}
+			}else if(diffStartLine <= jupyterSource.start && diffEndLine >= jupyterSource.start && diffEndLine <= jupyterSource.end) {
+				for(k = jupyterSource.start - diffStartLine; k < diffEndLine - diffStartLine; k++) {
+					if(jupyterSource.type == "code"){
+						const lineJson = {"type":jupyterSource.type, "count":jupyterSource.count, "text":diffLines[k]};
+						diffInfo.push(lineJson);
+					}else if(jupyterSource.type == "markdown"){
+						const lineJson = {"type":jupyterSource.type, "text":diffLines[k]};
+						diffInfo.push(lineJson);
+					}else{
+						console.error(`Jupyter diff parse error! jupyter source type must be code or markdown, but found ${jupyterSource.type}`);
+					}
+				}
+			}else if(diffStartLine >= jupyterSource.start && diffEndLine <= jupyterSource.end) {
+				for(k = 0; k < diffEndLine - diffStartLine; k++) {
+					if(jupyterSource.type == "code"){
+						const lineJson = {"type":jupyterSource.type, "count":jupyterSource.count, "text":diffLines[k]};
+						diffInfo.push(lineJson);
+					}else if(jupyterSource.type == "markdown"){
+						const lineJson = {"type":jupyterSource.type, "text":diffLines[k]};
+						diffInfo.push(lineJson);
+					}else{
+						console.error(`Jupyter diff parse error! jupyter source type must be code or markdown, but found ${jupyterSource.type}`);
+					}
+				}
+			}
+		}
+		diffInfoList.push(diffInfo);
 	}
-	return patch;
+	console.log(diffInfoList);
+	return diffInfoList;
 }
 
 function extractSourceFromJupyter(jupyter){
@@ -170,7 +227,7 @@ function extractSourceFromJupyter(jupyter){
 			if(extractState != "type"){
 				console.error(`line: ${lineNumber}, Jupyter extract error! extractState required: type, but found ${extractState}`);
 			}
-			sourceJson["start"] = lineNumber;
+			sourceJson["start"] = lineNumber + 1;
 			extractState = "source";
 		}else if(sourceEndRegs.test(line)){
 			if(extractState == "source"){
@@ -184,5 +241,6 @@ function extractSourceFromJupyter(jupyter){
 		}
 		lineNumber += 1;
 	}
+	console.log(sourceList);
 	return sourceList;
 }
