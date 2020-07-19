@@ -109,7 +109,7 @@ function createDiffElement(hash, rawJupyterText, patch) {
 			trEl.appendChild(tdCodeEl);
 
 			const codeWrapperSpanEl = document.createElement("span");
-			codeWrapperSpanEl.className = "blob-code-inner blob-code-marker pl-k"
+			codeWrapperSpanEl.className = "blob-code-inner blob-code-marker"
 			codeWrapperSpanEl.dataset.codeMarker = diffLine.text.slice(0,1);
 			codeWrapperSpanEl.insertAdjacentText("beforeend", diffLine.text.slice(1));
 			tdCodeEl.appendChild(codeWrapperSpanEl);
