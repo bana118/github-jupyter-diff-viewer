@@ -31,6 +31,7 @@ const observer = new MutationObserver(records => {
 						const diffHash = fileHeaderElement.dataset.anchor;
 						const fileContainerElement = document.getElementById(diffHash);
 						const diffPatch = jupyterFileInfoJson.patch;
+						console.log(jupyterFileInfoJson);
 						const rawFileRequest = new XMLHttpRequest();
 						rawFileRequest.open("GET", blobUrl);
 						rawFileRequest.setRequestHeader("Authorization", `token ${token}`);
@@ -271,7 +272,7 @@ function extractSourceFromJupyter(jupyter) {
 			if (extractState == "source") {
 				extractState = "skip";
 				sourceJson["source"] = sourceLines;
-				sourceJson["end"] = lineNumber;
+				sourceJson["end"] = lineNumber + 1;
 				sourceList.push(sourceJson);
 				sourceJson = {};
 				sourceLines = [];
