@@ -110,8 +110,10 @@ function createDiffElement(hash, rawJupyterText, patch) {
 
 			const codeWrapperSpanEl = document.createElement("span");
 			codeWrapperSpanEl.className = "blob-code-inner blob-code-marker"
-			codeWrapperSpanEl.dataset.codeMarker = diffLine.text.slice(0,1);
-			codeWrapperSpanEl.insertAdjacentText("beforeend", diffLine.text.slice(1));
+			const marker = diffLine.text.slice(0,1);
+			const code = diffLine.text.slice(1).replace(/^( *)"/, "$1").replace(/\\n",$|"$/, "").replace(/\\/g, "");
+			codeWrapperSpanEl.dataset.codeMarker = marker;
+			codeWrapperSpanEl.insertAdjacentText("beforeend", code);
 			tdCodeEl.appendChild(codeWrapperSpanEl);
 		}
 	}
