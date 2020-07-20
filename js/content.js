@@ -88,34 +88,84 @@ function createDiffElement(hash, rawJupyterText, patch) {
 	const tbodyEl = document.createElement("tbody");
 	diffTableEl.appendChild(tbodyEl);
 
-	for(diffLines of diffInfo) {
-		for(diffLine of diffLines) {
+	for (diffLines of diffInfo) {
+		let lineCount = 0;
+		let recordLineCount = 0;
+		for (diffLine of diffLines) {
+			lineCount += 1;
+			const marker = diffLine.text.slice(0, 1);
+			const code = diffLine.text.slice(1).replace(/^( *)"/, "$1").replace(/\\n",$|"$/, "").replace(/\\/g, "");
+
 			const trEl = document.createElement("tr");
 			tbodyEl.appendChild(trEl);
+			if (marker == " ") {
+				const tdNumLeftEl = document.createElement("td");
+				tdNumLeftEl.className = "blob-num blob-num-context js-linkable-line-number"
+				tdNumLeftEl.dataset.lineNumber = lineCount;
+				trEl.appendChild(tdNumLeftEl);
 
-			const tdNumLeftEl = document.createElement("td");
-			tdNumLeftEl.className = "blob-num blob-num-context js-linkable-line-number"
-			tdNumLeftEl.dataset.lineNumber = diffLine.type;
-			trEl.appendChild(tdNumLeftEl);
+				const tdNumRightEl = document.createElement("td");
+				tdNumRightEl.className = "blob-num blob-num-context js-linkable-line-number"
+				tdNumRightEl.dataset.lineNumber = lineCount;
+				trEl.appendChild(tdNumRightEl);
 
-			const tdNumRightEl = document.createElement("td");
-			tdNumRightEl.className = "blob-num blob-num-context js-linkable-line-number"
-			if(diffLine.type == "code"){
-				tdNumRightEl.dataset.lineNumber = `In[${diffLine.count}]`
+				const tdCodeEl = document.createElement("td");
+				tdCodeEl.className = "blob-code blob-code-context";
+				trEl.appendChild(tdCodeEl);
+
+				const codeWrapperSpanEl = document.createElement("span");
+				codeWrapperSpanEl.className = "blob-code-inner blob-code-marker"
+				codeWrapperSpanEl.dataset.codeMarker = marker;
+				codeWrapperSpanEl.insertAdjacentText("beforeend", code);
+				tdCodeEl.appendChild(codeWrapperSpanEl);
+			} else if (marker == "-") {
+				if(recordLineCount == 0){
+					recordLineCount = lineCount;
+				}
+				const tdNumLeftEl = document.createElement("td");
+				tdNumLeftEl.className = "blob-num blob-num-deletion js-linkable-line-number"
+				tdNumLeftEl.dataset.lineNumber = lineCount;
+				trEl.appendChild(tdNumLeftEl);
+
+				const tdNumRightEl = document.createElement("td");
+				tdNumRightEl.className = "blob-num blob-num-deletion empty-cell"
+				trEl.appendChild(tdNumRightEl);
+
+				const tdCodeEl = document.createElement("td");
+				tdCodeEl.className = "blob-code blob-code-deletion";
+				trEl.appendChild(tdCodeEl);
+
+				const codeWrapperSpanEl = document.createElement("span");
+				codeWrapperSpanEl.className = "blob-code-inner blob-code-marker"
+				codeWrapperSpanEl.dataset.codeMarker = marker;
+				codeWrapperSpanEl.insertAdjacentText("beforeend", code);
+				tdCodeEl.appendChild(codeWrapperSpanEl);
+			} else if (marker == "+") {
+				if(recordLineCount != 0){
+					recordCount = recordLineCount - 1;
+					recordLineCount = 0;
+				}
+				const tdNumLeftEl = document.createElement("td");
+				tdNumLeftEl.className = "blob-num blob-num-addition empty-cell"
+				trEl.appendChild(tdNumLeftEl);
+
+				const tdNumRightEl = document.createElement("td");
+				tdNumRightEl.className = "blob-num blob-num-addition js-linkable-line-number"
+				tdNumRightEl.dataset.lineNumber = lineCount;
+				trEl.appendChild(tdNumRightEl);
+
+				const tdCodeEl = document.createElement("td");
+				tdCodeEl.className = "blob-code blob-code-addition";
+				trEl.appendChild(tdCodeEl);
+
+				const codeWrapperSpanEl = document.createElement("span");
+				codeWrapperSpanEl.className = "blob-code-inner blob-code-marker"
+				codeWrapperSpanEl.dataset.codeMarker = marker;
+				codeWrapperSpanEl.insertAdjacentText("beforeend", code);
+				tdCodeEl.appendChild(codeWrapperSpanEl);
+			} else {
+				console.error(`Jupyter diff marker error! diff code marker must be space or + or -, but found ${marker}`);
 			}
-			trEl.appendChild(tdNumRightEl);
-
-			const tdCodeEl = document.createElement("td");
-			tdCodeEl.className = "blob-code blob-code-context";
-			trEl.appendChild(tdCodeEl);
-
-			const codeWrapperSpanEl = document.createElement("span");
-			codeWrapperSpanEl.className = "blob-code-inner blob-code-marker"
-			const marker = diffLine.text.slice(0,1);
-			const code = diffLine.text.slice(1).replace(/^( *)"/, "$1").replace(/\\n",$|"$/, "").replace(/\\/g, "");
-			codeWrapperSpanEl.dataset.codeMarker = marker;
-			codeWrapperSpanEl.insertAdjacentText("beforeend", code);
-			tdCodeEl.appendChild(codeWrapperSpanEl);
 		}
 	}
 
@@ -155,7 +205,7 @@ function createDiffElement(hash, rawJupyterText, patch) {
 	// tempSpanEl4.className = "pl-v";
 	// tempSpanEl4.innerHTML = "FastAPI";
 	// tempSpanEl1.appendChild(tempSpanEl4);
-	
+
 	// tempSpanEl1.insertAdjacentText("beforeend", "()");
 
 
