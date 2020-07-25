@@ -75,7 +75,8 @@ const observer = new MutationObserver(records => {
 });
 
 observer.observe(target, {
-	attributes: true
+	attributes: true,
+	subtree: true
 });
 
 function createDiffElement(hash, rawJupyterText, patch) {
