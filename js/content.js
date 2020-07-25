@@ -74,6 +74,7 @@ function createDiffElement(hash, rawJupyterText, patch) {
 
 	const extensionDescriptionEl = document.createElement("p");
 	extensionDescriptionEl.innerHTML = "Github Jupyter diff viewer extension";
+	extensionDescriptionEl.style.backgroundColor = "#ffcc99";
 	diffElement.appendChild(extensionDescriptionEl);
 
 	const toggleButtonEl = document.createElement("button");
