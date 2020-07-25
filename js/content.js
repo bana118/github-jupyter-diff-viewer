@@ -89,6 +89,28 @@ function createDiffElement(hash, rawJupyterText, patch) {
 	diffTableEl.appendChild(tbodyEl);
 
 	for (diffLines of diffInfo) {
+		if(diffLines.length != 0){
+			const divideTrEl = document.createElement("tr");
+			divideTrEl.className = "js-expandable-line";
+			tbodyEl.appendChild(divideTrEl);
+
+			const divideLeftTdEl = document.createElement("td");
+			divideLeftTdEl.className = "blob-num blob-num-expandable";
+			divideLeftTdEl.setAttribute("colSpan", "2");
+			divideLeftTdEl.innerHTML = `${diffLines[0].type}`;
+			divideTrEl.appendChild(divideLeftTdEl);
+
+			const divideRightTdEl = document.createElement("td");
+			divideRightTdEl.className = "blob-code blob-code-inner blob-code-hunk";
+			if(diffLines[0].type == "code"){
+				divideRightTdEl.innerHTML = `In[${diffLines[0].count}] @@ -${diffLines[0].prev_line},${diffLines[diffLines.length-1].prev_line} +${diffLines[0].now_line},${diffLines[diffLines.length-1].now_line} @@`;
+			}else if(diffLines[0].type == "markdown"){
+				divideRightTdEl.innerHTML = `@@ -${diffLines[0].prev_line},${diffLines[diffLines.length-1].prev_line} +${diffLines[0].now_line},${diffLines[diffLines.length-1].now_line} @@`;
+			}else{
+				console.error(`Jupyter diff create element error! jupyter source type must be code or markdown, but found ${diffLines[0].type}}`);
+			}
+			divideTrEl.appendChild(divideRightTdEl);
+		}
 		for (diffLine of diffLines) {
 			const marker = diffLine.text.slice(0, 1);
 			const code = diffLine.text.slice(1).replace(/^( *)"/, "$1").replace(/\\n",$|"$/, "").replace(/\\/g, "");
