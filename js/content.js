@@ -234,7 +234,6 @@ function parse(allJupyterText, patch) {
 	const lineInfoSplitRegs = / |,/;
 	const jupyterSourceList = extractSourceFromJupyter(allJupyterText);
 	for (i = 0; i < diffList.length; i++) {
-		const diffInfo = [];
 		const diff = diffList[i];
 		const diffLines = diff.split("\n");
 		const lineInfo = lineInfoList[i];
@@ -242,6 +241,7 @@ function parse(allJupyterText, patch) {
 		const diffStartLine = Number(splitedLineInfo[3]);
 		const diffEndLine = Number(splitedLineInfo[4]) + diffStartLine;
 		for (j = 0; j < jupyterSourceList.length; j++) {
+			const diffInfo = [];
 			const jupyterSource = jupyterSourceList[j];
 			let deletionCount = 0;
 			if (diffStartLine >= jupyterSource.start && diffStartLine <= jupyterSource.end && diffEndLine >= jupyterSource.end) {
@@ -349,8 +349,8 @@ function parse(allJupyterText, patch) {
 					}
 				}
 			}
+			diffInfoList.push(diffInfo);
 		}
-		diffInfoList.push(diffInfo);
 	}
 	console.log(diffInfoList);
 	return diffInfoList;
