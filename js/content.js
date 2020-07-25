@@ -41,6 +41,19 @@ const observer = new MutationObserver(records => {
 								console.log("now raw file info requeset sending...")
 							} else if (rawFileRequest.status != 200) {
 								console.error(`Github API fail! status=${request.status}`)
+							} else if (diffPatch == null) {
+								const divideEl = document.createElement("hr");
+								fileContainerElement.appendChild(divideEl);
+
+								const extensionDescriptionEl = document.createElement("p");
+								extensionDescriptionEl.innerHTML = "Github Jupyter diff viewer extension";
+								extensionDescriptionEl.style.backgroundColor = "#ffcc99";
+								fileContainerElement.appendChild(extensionDescriptionEl);
+
+								const diffLimitErrorElement = document.createElement("p");
+								diffLimitErrorElement.innerHTML = "This diff may be too large to display on GitHub"
+								diffLimitErrorElement.style.color = "red";
+								fileContainerElement.appendChild(diffLimitErrorElement);
 							} else {
 								// console.log(rawFileRequest.responseText);
 								const existDiffElement = document.getElementById(`${prefix}-${diffHash}`);
