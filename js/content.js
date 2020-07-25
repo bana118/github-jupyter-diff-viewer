@@ -89,7 +89,7 @@ function createDiffElement(hash, rawJupyterText, patch) {
 	diffTableEl.appendChild(tbodyEl);
 
 	for (diffLines of diffInfo) {
-		if(diffLines.length != 0){
+		if (diffLines.length != 0) {
 			const divideTrEl = document.createElement("tr");
 			divideTrEl.className = "js-expandable-line";
 			tbodyEl.appendChild(divideTrEl);
@@ -102,11 +102,11 @@ function createDiffElement(hash, rawJupyterText, patch) {
 
 			const divideRightTdEl = document.createElement("td");
 			divideRightTdEl.className = "blob-code blob-code-inner blob-code-hunk";
-			if(diffLines[0].type == "code"){
-				divideRightTdEl.innerHTML = `In[${diffLines[0].count}] @@ -${diffLines[0].prev_line},${diffLines[diffLines.length-1].prev_line} +${diffLines[0].now_line},${diffLines[diffLines.length-1].now_line} @@`;
-			}else if(diffLines[0].type == "markdown"){
-				divideRightTdEl.innerHTML = `@@ -${diffLines[0].prev_line},${diffLines[diffLines.length-1].prev_line} +${diffLines[0].now_line},${diffLines[diffLines.length-1].now_line} @@`;
-			}else{
+			if (diffLines[0].type == "code") {
+				divideRightTdEl.innerHTML = `In[${diffLines[0].count}] @@ -${diffLines[0].prev_line},${diffLines[diffLines.length - 1].prev_line} +${diffLines[0].now_line},${diffLines[diffLines.length - 1].now_line} @@`;
+			} else if (diffLines[0].type == "markdown") {
+				divideRightTdEl.innerHTML = `@@ -${diffLines[0].prev_line},${diffLines[diffLines.length - 1].prev_line} +${diffLines[0].now_line},${diffLines[diffLines.length - 1].now_line} @@`;
+			} else {
 				console.error(`Jupyter diff create element error! jupyter source type must be code or markdown, but found ${diffLines[0].type}}`);
 			}
 			divideTrEl.appendChild(divideRightTdEl);
@@ -248,23 +248,23 @@ function parse(allJupyterText, patch) {
 				let prevLineCount = diffStartLine - jupyterSource.start;
 				let nowLineCount = diffStartLine - jupyterSource.start;
 				for (k = 0; k < jupyterSource.end - diffStartLine + deletionCount; k++) {
-					const marker = diffLines[k].slice(0,1);
-					if(marker == " "){
+					const marker = diffLines[k].slice(0, 1);
+					if (marker == " ") {
 						prevLineCount += 1;
 						nowLineCount += 1;
-					}else if(marker == "-"){
+					} else if (marker == "-") {
 						prevLineCount += 1;
 						deletionCount += 1;
-					}else if(marker == "+"){
+					} else if (marker == "+") {
 						nowLineCount += 1;
-					}else{
+					} else {
 						console.error(`Jupyter diff parse error! diff code marker must be space or + or -, but found ${marker}`);
 					}
 					if (jupyterSource.type == "code") {
-						const lineJson = { "type": jupyterSource.type, "count": jupyterSource.count, "text": diffLines[k], "prev_line": prevLineCount, "now_line": nowLineCount};
+						const lineJson = { "type": jupyterSource.type, "count": jupyterSource.count, "text": diffLines[k], "prev_line": prevLineCount, "now_line": nowLineCount };
 						diffInfo.push(lineJson);
 					} else if (jupyterSource.type == "markdown") {
-						const lineJson = { "type": jupyterSource.type, "text": diffLines[k], "prev_line": prevLineCount, "now_line": nowLineCount};
+						const lineJson = { "type": jupyterSource.type, "text": diffLines[k], "prev_line": prevLineCount, "now_line": nowLineCount };
 						diffInfo.push(lineJson);
 					} else {
 						console.error(`Jupyter diff parse error! jupyter source type must be code or markdown, but found ${jupyterSource.type}`);
@@ -274,23 +274,23 @@ function parse(allJupyterText, patch) {
 				let prevLineCount = 0;
 				let nowLineCount = 0;
 				for (k = jupyterSource.start - diffStartLine; k < jupyterSource.end - diffStartLine + deletionCount; k++) {
-					const marker = diffLines[k].slice(0,1);
-					if(marker == " "){
+					const marker = diffLines[k].slice(0, 1);
+					if (marker == " ") {
 						prevLineCount += 1;
 						nowLineCount += 1;
-					}else if(marker == "-"){
+					} else if (marker == "-") {
 						prevLineCount += 1;
 						deletionCount += 1;
-					}else if(marker == "+"){
+					} else if (marker == "+") {
 						nowLineCount += 1;
-					}else{
+					} else {
 						console.error(`Jupyter diff parse error! diff code marker must be space or + or -, but found ${marker}`);
 					}
 					if (jupyterSource.type == "code") {
-						const lineJson = { "type": jupyterSource.type, "count": jupyterSource.count, "text": diffLines[k], "prev_line": prevLineCount, "now_line": nowLineCount};
+						const lineJson = { "type": jupyterSource.type, "count": jupyterSource.count, "text": diffLines[k], "prev_line": prevLineCount, "now_line": nowLineCount };
 						diffInfo.push(lineJson);
 					} else if (jupyterSource.type == "markdown") {
-						const lineJson = { "type": jupyterSource.type, "text": diffLines[k], "prev_line": prevLineCount, "now_line": nowLineCount};
+						const lineJson = { "type": jupyterSource.type, "text": diffLines[k], "prev_line": prevLineCount, "now_line": nowLineCount };
 						diffInfo.push(lineJson);
 					} else {
 						console.error(`Jupyter diff parse error! jupyter source type must be code or markdown, but found ${jupyterSource.type}`);
@@ -300,23 +300,23 @@ function parse(allJupyterText, patch) {
 				let prevLineCount = 0;
 				let nowLineCount = 0;
 				for (k = jupyterSource.start - diffStartLine; k < diffEndLine - diffStartLine + deletionCount; k++) {
-					const marker = diffLines[k].slice(0,1);
-					if(marker == " "){
+					const marker = diffLines[k].slice(0, 1);
+					if (marker == " ") {
 						prevLineCount += 1;
 						nowLineCount += 1;
-					}else if(marker == "-"){
+					} else if (marker == "-") {
 						prevLineCount += 1;
 						deletionCount += 1;
-					}else if(marker == "+"){
+					} else if (marker == "+") {
 						nowLineCount += 1;
-					}else{
+					} else {
 						console.error(`Jupyter diff parse error! diff code marker must be space or + or -, but found ${marker}`);
 					}
 					if (jupyterSource.type == "code") {
-						const lineJson = { "type": jupyterSource.type, "count": jupyterSource.count, "text": diffLines[k], "prev_line": prevLineCount, "now_line": nowLineCount};
+						const lineJson = { "type": jupyterSource.type, "count": jupyterSource.count, "text": diffLines[k], "prev_line": prevLineCount, "now_line": nowLineCount };
 						diffInfo.push(lineJson);
 					} else if (jupyterSource.type == "markdown") {
-					    const lineJson = { "type": jupyterSource.type, "text": diffLines[k], "prev_line": prevLineCount, "now_line": nowLineCount};
+						const lineJson = { "type": jupyterSource.type, "text": diffLines[k], "prev_line": prevLineCount, "now_line": nowLineCount };
 						diffInfo.push(lineJson);
 					} else {
 						console.error(`Jupyter diff parse error! jupyter source type must be code or markdown, but found ${jupyterSource.type}`);
@@ -326,23 +326,23 @@ function parse(allJupyterText, patch) {
 				let prevLineCount = diffStartLine - jupyterSource.start;
 				let nowLineCount = diffStartLine - jupyterSource.start;
 				for (k = 0; k < diffEndLine - diffStartLine + deletionCount; k++) {
-					const marker = diffLines[k].slice(0,1);
-					if(marker == " "){
+					const marker = diffLines[k].slice(0, 1);
+					if (marker == " ") {
 						prevLineCount += 1;
 						nowLineCount += 1;
-					}else if(marker == "-"){
+					} else if (marker == "-") {
 						prevLineCount += 1;
 						deletionCount += 1;
-					}else if(marker == "+"){
+					} else if (marker == "+") {
 						nowLineCount += 1;
-					}else{
+					} else {
 						console.error(`Jupyter diff parse error! diff code marker must be space or + or -, but found ${marker}`);
 					}
 					if (jupyterSource.type == "code") {
-						const lineJson = { "type": jupyterSource.type, "count": jupyterSource.count, "text": diffLines[k], "prev_line": prevLineCount, "now_line": nowLineCount};
+						const lineJson = { "type": jupyterSource.type, "count": jupyterSource.count, "text": diffLines[k], "prev_line": prevLineCount, "now_line": nowLineCount };
 						diffInfo.push(lineJson);
 					} else if (jupyterSource.type == "markdown") {
-						const lineJson = { "type": jupyterSource.type, "text": diffLines[k], "prev_line": prevLineCount, "now_line": nowLineCount};
+						const lineJson = { "type": jupyterSource.type, "text": diffLines[k], "prev_line": prevLineCount, "now_line": nowLineCount };
 						diffInfo.push(lineJson);
 					} else {
 						console.error(`Jupyter diff parse error! jupyter source type must be code or markdown, but found ${jupyterSource.type}`);
