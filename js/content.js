@@ -26,7 +26,6 @@ const observer = new MutationObserver(records => {
 				} else {
 					const prFilesInfo = request.responseText;
 					const prFilesInfoJson = JSON.parse(prFilesInfo);
-					//console.log(prFilesInfoJson);
 					const jupyterFileRegExp = /\.ipynb$/;
 					const jupyterFilesInfoJson = prFilesInfoJson.filter(prFileInfoJson => jupyterFileRegExp.test(prFileInfoJson.filename));
 					for (jupyterFileInfoJson of jupyterFilesInfoJson) {
@@ -35,7 +34,6 @@ const observer = new MutationObserver(records => {
 						const diffHash = fileHeaderElement.dataset.anchor;
 						const fileContainerElement = document.getElementById(diffHash);
 						const diffPatch = jupyterFileInfoJson.patch;
-						console.log(jupyterFileInfoJson);
 						const rawFileRequest = new XMLHttpRequest();
 						rawFileRequest.open("GET", blobUrl);
 						rawFileRequest.setRequestHeader("Authorization", `token ${token}`);
@@ -344,7 +342,6 @@ function parse(allJupyterText, patch) {
 			diffInfoList.push(diffInfo);
 		}
 	}
-	console.log(diffInfoList);
 	return diffInfoList;
 }
 
@@ -392,6 +389,5 @@ function extractSourceFromJupyter(jupyter) {
 		}
 		lineNumber += 1;
 	}
-	console.log(sourceList);
 	return sourceList;
 }
