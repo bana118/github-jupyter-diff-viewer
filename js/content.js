@@ -76,10 +76,25 @@ function createDiffElement(hash, rawJupyterText, patch) {
 	extensionDescriptionEl.innerHTML = "Github Jupyter diff viewer extension";
 	diffElement.appendChild(extensionDescriptionEl);
 
+	const toggleButtonEl = document.createElement("button");
+	toggleButtonEl.innerHTML = "hide";
+	diffElement.appendChild(toggleButtonEl);
+
 	const blobWrapperEl = document.createElement("div");
 	blobWrapperEl.className = "data highlight js-blob-wrapper";
 	blobWrapperEl.style = "overflow-x: auto";
 	diffElement.appendChild(blobWrapperEl);
+
+	toggleButtonEl.onclick = function () {
+		if (toggleButtonEl.innerHTML == "hide") {
+			toggleButtonEl.innerHTML = "show";
+			blobWrapperEl.style.display = "none";
+		} else if (toggleButtonEl.innerHTML == "show") {
+			toggleButtonEl.innerHTML = "hide";
+			blobWrapperEl.style.display = "block";
+		}
+	}
+
 
 	const diffTableEl = document.createElement("table");
 	diffTableEl.className = "diff-table js-diff-table tab-size";
