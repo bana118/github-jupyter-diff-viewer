@@ -1,4 +1,5 @@
 const target = document.body;
+console.log(target);
 const prefix = "banatech-github-jupyter-diff-viewer";
 const observer = new MutationObserver(records => {
 	const pattern = /https:\/\/github.com\/(.+)\/(.+)\/pull\/(\d+)\/files/;
@@ -55,7 +56,6 @@ const observer = new MutationObserver(records => {
 								diffLimitErrorElement.style.color = "red";
 								fileContainerElement.appendChild(diffLimitErrorElement);
 							} else {
-								// console.log(rawFileRequest.responseText);
 								const existDiffElement = document.getElementById(`${prefix}-${diffHash}`);
 								if (existDiffElement != null) {
 									existDiffElement.parentNode.removeChild(existDiffElement);
