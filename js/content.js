@@ -1,9 +1,12 @@
 const target = document.body;
-console.log(target);
 const prefix = "banatech-github-jupyter-diff-viewer";
+
 const observer = new MutationObserver(records => {
 	const pattern = /https:\/\/github.com\/(.+)\/(.+)\/pull\/(\d+)\/files/;
-	if (pattern.test(location.href)) {
+	if (pattern.test(location.href) && document.getElementById(prefix) == null) {
+		const prefixEl = document.createElement("div");
+		prefixEl.id = prefix;
+		document.body.appendChild(prefixEl);
 		const prData = location.href.match(pattern);
 		const owner = prData[1];
 		const repo = prData[2];
