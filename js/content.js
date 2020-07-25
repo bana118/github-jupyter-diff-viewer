@@ -221,16 +221,18 @@ function parse(allJupyterText, patch) {
 		const diffEndLine = Number(splitedLineInfo[4]) + diffStartLine;
 		for (j = 0; j < jupyterSourceList.length; j++) {
 			const jupyterSource = jupyterSourceList[j];
+			let deletionCount = 0;
 			if (diffStartLine >= jupyterSource.start && diffStartLine <= jupyterSource.end && diffEndLine >= jupyterSource.end) {
 				let prevLineCount = diffStartLine - jupyterSource.start;
 				let nowLineCount = diffStartLine - jupyterSource.start;
-				for (k = 0; k < jupyterSource.end - diffStartLine; k++) {
+				for (k = 0; k < jupyterSource.end - diffStartLine + deletionCount; k++) {
 					const marker = diffLines[k].slice(0,1);
 					if(marker == " "){
 						prevLineCount += 1;
 						nowLineCount += 1;
 					}else if(marker == "-"){
 						prevLineCount += 1;
+						deletionCount += 1;
 					}else if(marker == "+"){
 						nowLineCount += 1;
 					}else{
@@ -249,13 +251,14 @@ function parse(allJupyterText, patch) {
 			} else if (diffStartLine <= jupyterSource.start && diffEndLine >= jupyterSource.end) {
 				let prevLineCount = 0;
 				let nowLineCount = 0;
-				for (k = jupyterSource.start - diffStartLine; k < jupyterSource.end - diffStartLine; k++) {
+				for (k = jupyterSource.start - diffStartLine; k < jupyterSource.end - diffStartLine + deletionCount; k++) {
 					const marker = diffLines[k].slice(0,1);
 					if(marker == " "){
 						prevLineCount += 1;
 						nowLineCount += 1;
 					}else if(marker == "-"){
 						prevLineCount += 1;
+						deletionCount += 1;
 					}else if(marker == "+"){
 						nowLineCount += 1;
 					}else{
@@ -274,13 +277,14 @@ function parse(allJupyterText, patch) {
 			} else if (diffStartLine <= jupyterSource.start && diffEndLine >= jupyterSource.start && diffEndLine <= jupyterSource.end) {
 				let prevLineCount = 0;
 				let nowLineCount = 0;
-				for (k = jupyterSource.start - diffStartLine; k < diffEndLine - diffStartLine; k++) {
+				for (k = jupyterSource.start - diffStartLine; k < diffEndLine - diffStartLine + deletionCount; k++) {
 					const marker = diffLines[k].slice(0,1);
 					if(marker == " "){
 						prevLineCount += 1;
 						nowLineCount += 1;
 					}else if(marker == "-"){
 						prevLineCount += 1;
+						deletionCount += 1;
 					}else if(marker == "+"){
 						nowLineCount += 1;
 					}else{
@@ -299,13 +303,14 @@ function parse(allJupyterText, patch) {
 			} else if (diffStartLine >= jupyterSource.start && diffEndLine <= jupyterSource.end) {
 				let prevLineCount = diffStartLine - jupyterSource.start;
 				let nowLineCount = diffStartLine - jupyterSource.start;
-				for (k = 0; k < diffEndLine - diffStartLine; k++) {
+				for (k = 0; k < diffEndLine - diffStartLine + deletionCount; k++) {
 					const marker = diffLines[k].slice(0,1);
 					if(marker == " "){
 						prevLineCount += 1;
 						nowLineCount += 1;
 					}else if(marker == "-"){
 						prevLineCount += 1;
+						deletionCount += 1;
 					}else if(marker == "+"){
 						nowLineCount += 1;
 					}else{
@@ -365,7 +370,7 @@ function extractSourceFromJupyter(jupyter) {
 			if (extractState == "source") {
 				extractState = "skip";
 				sourceJson["source"] = sourceLines;
-				sourceJson["end"] = lineNumber + 1;
+				sourceJson["end"] = lineNumber;
 				sourceList.push(sourceJson);
 				sourceJson = {};
 				sourceLines = [];
