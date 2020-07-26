@@ -102,6 +102,8 @@ const observer = new MutationObserver(records => {
 					for (jupyterFileInfoJson of jupyterFilesInfoJson) {
 						const blobUrl = `https://api.github.com/repos/${owner}/${repo}/git/blobs/${jupyterFileInfoJson.sha}`;
 						const fileHeaderElement = document.querySelector(`[data-path="${jupyterFileInfoJson.filename}"]`);
+						console.log(jupyterFileInfoJson.filename);
+						console.log(fileHeaderElement);
 						const diffHash = fileHeaderElement.dataset.anchor;
 						const fileContainerElement = document.getElementById(diffHash);
 						const diffPatch = jupyterFileInfoJson.patch;
@@ -145,10 +147,21 @@ const observer = new MutationObserver(records => {
 	}
 });
 
-observer.observe(target, {
-	attributes: true,
-	subtree: true
-});
+window.addEventListener("load", main, false);
+
+function main(e) {
+	const jsInitCheckTimer = setInterval(jsLoaded, 100);
+	console.log("hoge");
+    function jsLoaded() {
+        if (document.getElementById("files") != null) {
+			clearInterval(jsInitCheckTimer);
+			observer.observe(target, {
+				attributes: true,
+				subtree: true
+			});
+		}
+	}
+}
 
 function createDiffElement(hash, rawJupyterText, patch) {
 	const diffInfo = parse(rawJupyterText, patch);
