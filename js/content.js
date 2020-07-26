@@ -2,12 +2,14 @@ const target = document.body;
 const prefix = "banatech-github-jupyter-diff-viewer";
 
 const observer = new MutationObserver(records => {
-	const pattern = /https:\/\/github.com\/(.+)\/(.+)\/pull\/(\d+)\/files/;
-	if (pattern.test(location.href) && document.getElementById(prefix) == null) {
+	const pullRequestPattern = /https:\/\/github.com\/(.+)\/(.+)\/pull\/(\d+)\/files/;
+	const pullRequestCommitPattern = /https:\/\/github.com\/(.+)\/(.+)\/pull\/\d+\/commits\/(.*)/;
+	const commitPattern = /https:\/\/github.com\/(.+)\/(.+)\/commit\/(.*)/;
+	if (pullRequestPattern.test(location.href) && document.getElementById(prefix) == null) {
 		const prefixEl = document.createElement("div");
 		prefixEl.id = prefix;
 		document.body.appendChild(prefixEl);
-		const prData = location.href.match(pattern);
+		const prData = location.href.match(pullRequestPattern);
 		const owner = prData[1];
 		const repo = prData[2];
 		const prNumber = prData[3];
@@ -20,7 +22,7 @@ const observer = new MutationObserver(records => {
 			request.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 			request.onreadystatechange = function () {
 				if (request.readyState != 4) {
-					console.log("now pr info requeset sending...")
+					console.log("now pr info requeset sending...");
 				} else if (request.status != 200) {
 					console.error(`Github API fail! status=${request.status}`)
 				} else {
@@ -40,9 +42,9 @@ const observer = new MutationObserver(records => {
 						rawFileRequest.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 						rawFileRequest.onreadystatechange = function () {
 							if (rawFileRequest.readyState !== 4) {
-								console.log("now raw file info requeset sending...")
+								console.log("now raw file info requeset sending...");
 							} else if (rawFileRequest.status != 200) {
-								console.error(`Github API fail! status=${request.status}`)
+								console.error(`Github API fail! status=${request.status}`);
 							} else if (diffPatch == null) {
 								const divideEl = document.createElement("hr");
 								fileContainerElement.appendChild(divideEl);
@@ -53,7 +55,76 @@ const observer = new MutationObserver(records => {
 								fileContainerElement.appendChild(extensionDescriptionEl);
 
 								const diffLimitErrorElement = document.createElement("p");
-								diffLimitErrorElement.innerHTML = "This diff may be too large to display on GitHub"
+								diffLimitErrorElement.innerHTML = "This diff may be too large to display on GitHub";
+								diffLimitErrorElement.style.color = "red";
+								fileContainerElement.appendChild(diffLimitErrorElement);
+							} else {
+								const existDiffElement = document.getElementById(`${prefix}-${diffHash}`);
+								if (existDiffElement != null) {
+									existDiffElement.parentNode.removeChild(existDiffElement);
+								}
+								const diffElement = createDiffElement(diffHash, rawFileRequest.responseText, diffPatch);
+								fileContainerElement.appendChild(diffElement);
+							}
+						}
+						rawFileRequest.send(null);
+					}
+				}
+			};
+			request.send(null);
+		});
+	}else if((commitPattern.test(location.href) || pullRequestCommitPattern.test(location.href)) && document.getElementById(prefix) == null){
+		const prefixEl = document.createElement("div");
+		prefixEl.id = prefix;
+		document.body.appendChild(prefixEl);
+		const commitData = commitPattern.test(location.href) ? location.href.match(commitPattern) : location.href.match(pullRequestCommitPattern)
+		const owner = commitData[1];
+		const repo = commitData[2];
+		const commitHash = commitData[3];
+		chrome.storage.local.get(null, function (items) {
+			const token = items.githubAccessToken;
+			const url = `https://api.github.com/repos/${owner}/${repo}/commits/${commitHash}`;
+			const request = new XMLHttpRequest();
+			request.open("GET", url);
+			request.setRequestHeader("Authorization", `token ${token}`);
+			request.setRequestHeader("Accept", "application/vnd.github.v3.raw");
+			request.onreadystatechange = function () {
+				if (request.readyState != 4) {
+					console.log("now pr info requeset sending...");
+				} else if (request.status != 200) {
+					console.error(`Github API fail! status=${request.status}`);
+				} else {
+					const commitInfo = request.responseText;
+					const commitInfoJson = JSON.parse(commitInfo);
+					const commitFilesInfoJson = commitInfoJson.files;
+					const jupyterFileRegExp = /\.ipynb$/;
+					const jupyterFilesInfoJson = commitFilesInfoJson.filter(prFileInfoJson => jupyterFileRegExp.test(prFileInfoJson.filename));
+					for (jupyterFileInfoJson of jupyterFilesInfoJson) {
+						const blobUrl = `https://api.github.com/repos/${owner}/${repo}/git/blobs/${jupyterFileInfoJson.sha}`;
+						const fileHeaderElement = document.querySelector(`[data-path="${jupyterFileInfoJson.filename}"]`);
+						const diffHash = fileHeaderElement.dataset.anchor;
+						const fileContainerElement = document.getElementById(diffHash);
+						const diffPatch = jupyterFileInfoJson.patch;
+						const rawFileRequest = new XMLHttpRequest();
+						rawFileRequest.open("GET", blobUrl);
+						rawFileRequest.setRequestHeader("Authorization", `token ${token}`);
+						rawFileRequest.setRequestHeader("Accept", "application/vnd.github.v3.raw");
+						rawFileRequest.onreadystatechange = function () {
+							if (rawFileRequest.readyState !== 4) {
+								console.log("now raw file info requeset sending...");
+							} else if (rawFileRequest.status != 200) {
+								console.error(`Github API fail! status=${request.status}`);
+							} else if (diffPatch == null) {
+								const divideEl = document.createElement("hr");
+								fileContainerElement.appendChild(divideEl);
+
+								const extensionDescriptionEl = document.createElement("p");
+								extensionDescriptionEl.innerHTML = "Github Jupyter diff viewer extension";
+								extensionDescriptionEl.style.backgroundColor = "#ffcc99";
+								fileContainerElement.appendChild(extensionDescriptionEl);
+
+								const diffLimitErrorElement = document.createElement("p");
+								diffLimitErrorElement.innerHTML = "This diff may be too large to display on GitHub";
 								diffLimitErrorElement.style.color = "red";
 								fileContainerElement.appendChild(diffLimitErrorElement);
 							} else {
@@ -231,14 +302,14 @@ function parse(allJupyterText, patch) {
 		const splitedLineInfo = lineInfo.split(lineInfoSplitRegs);
 		const diffStartLine = Number(splitedLineInfo[3]);
 		const diffEndLine = Number(splitedLineInfo[4]) + diffStartLine;
+		let deletionCount = 0;
 		for (j = 0; j < jupyterSourceList.length; j++) {
 			const diffInfo = [];
 			const jupyterSource = jupyterSourceList[j];
-			let deletionCount = 0;
 			if (diffStartLine >= jupyterSource.start && diffStartLine <= jupyterSource.end && diffEndLine >= jupyterSource.end) {
 				let prevLineCount = diffStartLine - jupyterSource.start;
 				let nowLineCount = diffStartLine - jupyterSource.start;
-				for (k = 0; k < jupyterSource.end - diffStartLine + deletionCount; k++) {
+				for (k = deletionCount; k < jupyterSource.end - diffStartLine + deletionCount; k++) {
 					const marker = diffLines[k].slice(0, 1);
 					if (marker == " ") {
 						prevLineCount += 1;
@@ -264,7 +335,7 @@ function parse(allJupyterText, patch) {
 			} else if (diffStartLine <= jupyterSource.start && diffEndLine >= jupyterSource.end) {
 				let prevLineCount = 0;
 				let nowLineCount = 0;
-				for (k = jupyterSource.start - diffStartLine; k < jupyterSource.end - diffStartLine + deletionCount; k++) {
+				for (k = jupyterSource.start - diffStartLine + deletionCount; k < jupyterSource.end - diffStartLine + deletionCount; k++) {
 					const marker = diffLines[k].slice(0, 1);
 					if (marker == " ") {
 						prevLineCount += 1;
@@ -290,7 +361,7 @@ function parse(allJupyterText, patch) {
 			} else if (diffStartLine <= jupyterSource.start && diffEndLine >= jupyterSource.start && diffEndLine <= jupyterSource.end) {
 				let prevLineCount = 0;
 				let nowLineCount = 0;
-				for (k = jupyterSource.start - diffStartLine; k < diffEndLine - diffStartLine + deletionCount; k++) {
+				for (k = jupyterSource.start - diffStartLine + deletionCount; k < diffEndLine - diffStartLine + deletionCount; k++) {
 					const marker = diffLines[k].slice(0, 1);
 					if (marker == " ") {
 						prevLineCount += 1;
@@ -316,7 +387,7 @@ function parse(allJupyterText, patch) {
 			} else if (diffStartLine >= jupyterSource.start && diffEndLine <= jupyterSource.end) {
 				let prevLineCount = diffStartLine - jupyterSource.start;
 				let nowLineCount = diffStartLine - jupyterSource.start;
-				for (k = 0; k < diffEndLine - diffStartLine + deletionCount; k++) {
+				for (k = deletionCount; k < diffEndLine - diffStartLine + deletionCount; k++) {
 					const marker = diffLines[k].slice(0, 1);
 					if (marker == " ") {
 						prevLineCount += 1;
