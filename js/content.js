@@ -5,10 +5,9 @@ const observer = new MutationObserver(records => {
 	const pullRequestPattern = /https:\/\/github.com\/(.+)\/(.+)\/pull\/(\d+)\/files/;
 	const pullRequestCommitPattern = /https:\/\/github.com\/(.+)\/(.+)\/pull\/\d+\/commits\/(.*)/;
 	const commitPattern = /https:\/\/github.com\/(.+)\/(.+)\/commit\/(.*)/;
-	if (pullRequestPattern.test(location.href) && document.getElementById(prefix) == null) {
-		const prefixEl = document.createElement("div");
-		prefixEl.id = prefix;
-		document.body.appendChild(prefixEl);
+	const numOfJupyterFiles = document.querySelectorAll('[data-file-type=".ipynb"]').length / 2;
+	const numOfAddElements = document.getElementsByClassName(`${prefix}`).length;
+	if (pullRequestPattern.test(location.href) && numOfAddElements == 0) {
 		const prData = location.href.match(pullRequestPattern);
 		const owner = prData[1];
 		const repo = prData[2];
@@ -22,7 +21,7 @@ const observer = new MutationObserver(records => {
 			request.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 			request.onreadystatechange = function () {
 				if (request.readyState != 4) {
-					console.log("now pr info requeset sending...");
+					// console.log("now pr info requeset sending...");
 				} else if (request.status != 200) {
 					console.error(`Github API fail! status=${request.status}`)
 				} else {
@@ -42,7 +41,7 @@ const observer = new MutationObserver(records => {
 						rawFileRequest.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 						rawFileRequest.onreadystatechange = function () {
 							if (rawFileRequest.readyState !== 4) {
-								console.log("now raw file info requeset sending...");
+								// console.log("now raw file info requeset sending...");
 							} else if (rawFileRequest.status != 200) {
 								console.error(`Github API fail! status=${request.status}`);
 							} else if (diffPatch == null) {
@@ -55,6 +54,7 @@ const observer = new MutationObserver(records => {
 								fileContainerElement.appendChild(extensionDescriptionEl);
 
 								const diffLimitErrorElement = document.createElement("p");
+								diffLimitErrorElement.className = prefix;
 								diffLimitErrorElement.innerHTML = "This diff may be too large to display on GitHub";
 								diffLimitErrorElement.style.color = "red";
 								fileContainerElement.appendChild(diffLimitErrorElement);
@@ -73,7 +73,7 @@ const observer = new MutationObserver(records => {
 			};
 			request.send(null);
 		});
-	} else if ((commitPattern.test(location.href) || pullRequestCommitPattern.test(location.href)) && document.getElementById(prefix) == null) {
+	} else if ((commitPattern.test(location.href) || pullRequestCommitPattern.test(location.href)) && numOfAddElements == 0) {
 		const prefixEl = document.createElement("div");
 		prefixEl.id = prefix;
 		document.body.appendChild(prefixEl);
@@ -90,7 +90,7 @@ const observer = new MutationObserver(records => {
 			request.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 			request.onreadystatechange = function () {
 				if (request.readyState != 4) {
-					console.log("now pr info requeset sending...");
+					// console.log("now pr info requeset sending...");
 				} else if (request.status != 200) {
 					console.error(`Github API fail! status=${request.status}`);
 				} else {
@@ -102,8 +102,6 @@ const observer = new MutationObserver(records => {
 					for (jupyterFileInfoJson of jupyterFilesInfoJson) {
 						const blobUrl = `https://api.github.com/repos/${owner}/${repo}/git/blobs/${jupyterFileInfoJson.sha}`;
 						const fileHeaderElement = document.querySelector(`[data-path="${jupyterFileInfoJson.filename}"]`);
-						console.log(jupyterFileInfoJson.filename);
-						console.log(fileHeaderElement);
 						const diffHash = fileHeaderElement.dataset.anchor;
 						const fileContainerElement = document.getElementById(diffHash);
 						const diffPatch = jupyterFileInfoJson.patch;
@@ -113,7 +111,7 @@ const observer = new MutationObserver(records => {
 						rawFileRequest.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 						rawFileRequest.onreadystatechange = function () {
 							if (rawFileRequest.readyState !== 4) {
-								console.log("now raw file info requeset sending...");
+								// console.log("now raw file info requeset sending...");
 							} else if (rawFileRequest.status != 200) {
 								console.error(`Github API fail! status=${request.status}`);
 							} else if (diffPatch == null) {
@@ -126,6 +124,7 @@ const observer = new MutationObserver(records => {
 								fileContainerElement.appendChild(extensionDescriptionEl);
 
 								const diffLimitErrorElement = document.createElement("p");
+								diffLimitErrorElement.className = prefix;
 								diffLimitErrorElement.innerHTML = "This diff may be too large to display on GitHub";
 								diffLimitErrorElement.style.color = "red";
 								fileContainerElement.appendChild(diffLimitErrorElement);
@@ -147,25 +146,15 @@ const observer = new MutationObserver(records => {
 	}
 });
 
-window.addEventListener("load", main, false);
-
-function main(e) {
-	const jsInitCheckTimer = setInterval(jsLoaded, 100);
-	console.log("hoge");
-    function jsLoaded() {
-        if (document.getElementById("files") != null) {
-			clearInterval(jsInitCheckTimer);
-			observer.observe(target, {
-				attributes: true,
-				subtree: true
-			});
-		}
-	}
-}
+observer.observe(target, {
+	attributes: true,
+	subtree: true
+});
 
 function createDiffElement(hash, rawJupyterText, patch) {
 	const diffInfo = parse(rawJupyterText, patch);
 	const diffElement = document.createElement("div");
+	diffElement.className = prefix;
 	diffElement.id = `${prefix}-${hash}`;
 
 	const divideEl = document.createElement("hr");
