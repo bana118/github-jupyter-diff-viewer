@@ -2,6 +2,21 @@ const target = document.body;
 const prefix = "banatech-github-jupyter-diff-viewer";
 
 const observer = new MutationObserver(records => {
+	const toggleButtons = document.getElementsByClassName(`${prefix}-toggle-button`);
+	const blobWrappers = document.getElementsByClassName(`${prefix}-blob-wrapper`);
+	for (i = 0; i < toggleButtons.length; i++) {
+		const toggleButtonEl = toggleButtons[i];
+		const blobWrapperEl = blobWrappers[i];
+		toggleButtonEl.onclick = function () {
+			if (toggleButtonEl.innerHTML == "hide") {
+				toggleButtonEl.innerHTML = "show";
+				blobWrapperEl.style.display = "none";
+			} else if (toggleButtonEl.innerHTML == "show") {
+				toggleButtonEl.innerHTML = "hide";
+				blobWrapperEl.style.display = "block";
+			}
+		}
+	}
 	const pullRequestPattern = /https:\/\/github.com\/(.+)\/(.+)\/pull\/(\d+)\/files/;
 	const pullRequestCommitPattern = /https:\/\/github.com\/(.+)\/(.+)\/pull\/\d+\/commits\/(.*)/;
 	const commitPattern = /https:\/\/github.com\/(.+)\/(.+)\/commit\/(.*)/;
@@ -245,10 +260,11 @@ function createDiffElement(hash, rawJupyterText, patch) {
 
 	const toggleButtonEl = document.createElement("button");
 	toggleButtonEl.innerHTML = "hide";
+	toggleButtonEl.className = `${prefix}-toggle-button`;
 	diffElement.appendChild(toggleButtonEl);
 
 	const blobWrapperEl = document.createElement("div");
-	blobWrapperEl.className = "data highlight js-blob-wrapper";
+	blobWrapperEl.className = `${prefix}-blob-wrapper data highlight js-blob-wrapper`;
 	blobWrapperEl.style = "overflow-x: auto";
 	diffElement.appendChild(blobWrapperEl);
 
@@ -261,7 +277,6 @@ function createDiffElement(hash, rawJupyterText, patch) {
 			blobWrapperEl.style.display = "block";
 		}
 	}
-
 
 	const diffTableEl = document.createElement("table");
 	diffTableEl.className = "diff-table js-diff-table tab-size";
