@@ -145,11 +145,11 @@ const observer = new MutationObserver(records => {
 			request.onreadystatechange = function () {
 				if (request.readyState != 4) {
 					// console.log("now pr info requeset sending...");
-					const existPrNowLoadingElement = document.getElementById(`${prefix}-now-loading-pr-${prNumber}`);
+					const existPrNowLoadingElement = document.getElementById(`${prefix}-now-loading-pr-${commitHash}`);
 					if (existPrNowLoadingElement == null) {
 						const prNowLoadingElement = document.createElement("div");
 						prNowLoadingElement.className == `${prefix}-now-loading`;
-						prNowLoadingElement.id = `${prefix}-now-loading-pr-${prNumber}`;
+						prNowLoadingElement.id = `${prefix}-now-loading-pr-${commitHash}`;
 						document.body.appendChild(prNowLoadingElement);
 					}
 				} else if (request.status != 200) {
