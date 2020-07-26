@@ -21,7 +21,7 @@ const observer = new MutationObserver(records => {
 			request.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 			request.onreadystatechange = function () {
 				if (request.readyState != 4) {
-					console.log("now pr info requeset sending...");
+					// console.log("now pr info requeset sending...");
 					const existPrNowLoadingElement = document.getElementById(`${prefix}-now-loading-pr-${prNumber}`);
 					if (existPrNowLoadingElement == null) {
 						const prNowLoadingElement = document.createElement("div");
@@ -56,7 +56,7 @@ const observer = new MutationObserver(records => {
 						rawFileRequest.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 						rawFileRequest.onreadystatechange = function () {
 							if (rawFileRequest.readyState !== 4) {
-								console.log("now raw file info requeset sending...");
+								// console.log("now raw file info requeset sending...");
 								const existFileNowLoadingElement = document.getElementById(`${prefix}-now-loading-file-${diffHash}`);
 								if (existFileNowLoadingElement == null) {
 									const fileNowLoadingElement = document.createElement("div");
@@ -129,7 +129,7 @@ const observer = new MutationObserver(records => {
 			request.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 			request.onreadystatechange = function () {
 				if (request.readyState != 4) {
-					console.log("now pr info requeset sending...");
+					// console.log("now pr info requeset sending...");
 					const existPrNowLoadingElement = document.getElementById(`${prefix}-now-loading-pr-${prNumber}`);
 					if (existPrNowLoadingElement == null) {
 						const prNowLoadingElement = document.createElement("div");
@@ -165,7 +165,7 @@ const observer = new MutationObserver(records => {
 						rawFileRequest.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 						rawFileRequest.onreadystatechange = function () {
 							if (rawFileRequest.readyState !== 4) {
-								console.log("now raw file info requeset sending...");
+								// console.log("now raw file info requeset sending...");
 								const existFileNowLoadingElement = document.getElementById(`${prefix}-now-loading-file-${diffHash}`);
 								if (existFileNowLoadingElement == null) {
 									const fileNowLoadingElement = document.createElement("div");
