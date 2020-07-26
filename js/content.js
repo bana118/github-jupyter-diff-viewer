@@ -5,7 +5,6 @@ const observer = new MutationObserver(records => {
 	const pullRequestPattern = /https:\/\/github.com\/(.+)\/(.+)\/pull\/(\d+)\/files/;
 	const pullRequestCommitPattern = /https:\/\/github.com\/(.+)\/(.+)\/pull\/\d+\/commits\/(.*)/;
 	const commitPattern = /https:\/\/github.com\/(.+)\/(.+)\/commit\/(.*)/;
-	const numOfJupyterFiles = document.querySelectorAll('[data-file-type=".ipynb"]').length / 2;
 	const numOfAddElements = document.getElementsByClassName(`${prefix}`).length;
 	if (pullRequestPattern.test(location.href) && numOfAddElements == 0) {
 		const prData = location.href.match(pullRequestPattern);
