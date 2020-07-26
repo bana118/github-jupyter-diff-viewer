@@ -20,7 +20,7 @@ const observer = new MutationObserver(records => {
 			request.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 			request.onreadystatechange = function () {
 				if (request.readyState != 4) {
-					 console.log("now pr info requeset sending...");
+					console.log("now pr info requeset sending...");
 				} else if (request.status != 200) {
 					console.error(`Github API fail! status=${request.status}`)
 				} else {
@@ -45,7 +45,7 @@ const observer = new MutationObserver(records => {
 								console.error(`Github API fail! status=${request.status}`);
 							} else if (diffPatch == null) {
 								const existDiffLimitErrorWrapperElement = document.getElementById(`${prefix}-${diffHash}-diff-limit-error`);
-								if(existDiffLimitErrorWrapperElement != null) {
+								if (existDiffLimitErrorWrapperElement != null) {
 									existDiffLimitErrorWrapperElement.parentNode.removeChild(existDiffLimitErrorWrapperElement);
 								}
 								const diffLimitErrorWrapperElement = document.createElement("div");
@@ -124,7 +124,7 @@ const observer = new MutationObserver(records => {
 								console.error(`Github API fail! status=${request.status}`);
 							} else if (diffPatch == null) {
 								const existDiffLimitErrorWrapperElement = document.getElementById(`${prefix}-${diffHash}-diff-limit-error`);
-								if(existDiffLimitErrorWrapperElement != null) {
+								if (existDiffLimitErrorWrapperElement != null) {
 									existDiffLimitErrorWrapperElement.parentNode.removeChild(existDiffLimitErrorWrapperElement);
 								}
 								const diffLimitErrorWrapperElement = document.createElement("div");
