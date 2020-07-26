@@ -1,6 +1,9 @@
 # github-jupyter-diff-viewer
 Diff viewer for jupyter file(*.ipynb) in Github
 
+# Download
+[Github Jupyter diff viewer \- Chrome ウェブストア](https://chrome.google.com/webstore/detail/github-jupyter-diff-viewe/bhncfkebhcnjhjpagogngbcdbapjdiej)
+
 # Example
 Show only diff of source code(python and markdown) when you watch file changed in pull request or commit.  
 You must enter a Github personal access token in the options if you want to use it in a private repository.  
