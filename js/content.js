@@ -6,7 +6,9 @@ const observer = new MutationObserver(records => {
 	const pullRequestCommitPattern = /https:\/\/github.com\/(.+)\/(.+)\/pull\/\d+\/commits\/(.*)/;
 	const commitPattern = /https:\/\/github.com\/(.+)\/(.+)\/commit\/(.*)/;
 	const numOfAddElements = document.getElementsByClassName(`${prefix}`).length;
-	if (pullRequestPattern.test(location.href) && numOfAddElements == 0) {
+	const request = new XMLHttpRequest();
+	const isNowLoading = (document.getElementsByClassName(`${prefix}-now-loading`).length != 0);
+	if (pullRequestPattern.test(location.href) && numOfAddElements == 0 && !isNowLoading) {
 		const prData = location.href.match(pullRequestPattern);
 		const owner = prData[1];
 		const repo = prData[2];
@@ -14,16 +16,30 @@ const observer = new MutationObserver(records => {
 		chrome.storage.local.get(null, function (items) {
 			const token = items.githubAccessToken;
 			const url = `https://api.github.com/repos/${owner}/${repo}/pulls/${prNumber}/files`;
-			const request = new XMLHttpRequest();
 			request.open("GET", url);
 			request.setRequestHeader("Authorization", `token ${token}`);
 			request.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 			request.onreadystatechange = function () {
 				if (request.readyState != 4) {
 					console.log("now pr info requeset sending...");
+					const existPrNowLoadingElement = document.getElementById(`${prefix}-now-loading-pr-${prNumber}`);
+					if (existPrNowLoadingElement == null) {
+						const prNowLoadingElement = document.createElement("div");
+						prNowLoadingElement.className == `${prefix}-now-loading`;
+						prNowLoadingElement.id = `${prefix}-now-loading-pr-${prNumber}`;
+						document.body.appendChild(prNowLoadingElement);
+					}
 				} else if (request.status != 200) {
-					console.error(`Github API fail! status=${request.status}`)
+					console.error(`Github API fail! status=${request.status}`);
+					const existPrNowLoadingElement = document.getElementById(`${prefix}-now-loading-pr-${prNumber}`);
+					if (existPrNowLoadingElement != null) {
+						existPrNowLoadingElement.parentNode.removeChild(existPrNowLoadingElement);
+					}
 				} else {
+					const existPrNowLoadingElement = document.getElementById(`${prefix}-now-loading-pr-${prNumber}`);
+					if (existPrNowLoadingElement != null) {
+						existPrNowLoadingElement.parentNode.removeChild(existPrNowLoadingElement);
+					}
 					const prFilesInfo = request.responseText;
 					const prFilesInfoJson = JSON.parse(prFilesInfo);
 					const jupyterFileRegExp = /\.ipynb$/;
@@ -40,10 +56,25 @@ const observer = new MutationObserver(records => {
 						rawFileRequest.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 						rawFileRequest.onreadystatechange = function () {
 							if (rawFileRequest.readyState !== 4) {
-								// console.log("now raw file info requeset sending...");
+								console.log("now raw file info requeset sending...");
+								const existFileNowLoadingElement = document.getElementById(`${prefix}-now-loading-file-${diffHash}`);
+								if (existFileNowLoadingElement == null) {
+									const fileNowLoadingElement = document.createElement("div");
+									fileNowLoadingElement.className == `${prefix}-now-loading`;
+									fileNowLoadingElement.id = `${prefix}-now-loading-file-${diffHash}`;
+									document.body.appendChild(fileNowLoadingElement);
+								}
 							} else if (rawFileRequest.status != 200) {
 								console.error(`Github API fail! status=${request.status}`);
+								const existFileNowLoadingElement = document.getElementById(`${prefix}-now-loading-file-${diffHash}`);
+								if (existFileNowLoadingElement != null) {
+									existFileNowLoadingElement.parentNode.removeChild(existFileNowLoadingElement);
+								}
 							} else if (diffPatch == null) {
+								const existFileNowLoadingElement = document.getElementById(`${prefix}-now-loading-file-${diffHash}`);
+								if (existFileNowLoadingElement != null) {
+									existFileNowLoadingElement.parentNode.removeChild(existFileNowLoadingElement);
+								}
 								const existDiffLimitErrorWrapperElement = document.getElementById(`${prefix}-${diffHash}-diff-limit-error`);
 								if (existDiffLimitErrorWrapperElement != null) {
 									existDiffLimitErrorWrapperElement.parentNode.removeChild(existDiffLimitErrorWrapperElement);
@@ -81,7 +112,7 @@ const observer = new MutationObserver(records => {
 			};
 			request.send(null);
 		});
-	} else if ((commitPattern.test(location.href) || pullRequestCommitPattern.test(location.href)) && numOfAddElements == 0) {
+	} else if ((commitPattern.test(location.href) || pullRequestCommitPattern.test(location.href)) && numOfAddElements == 0 && !isNowLoading) {
 		const prefixEl = document.createElement("div");
 		prefixEl.id = prefix;
 		document.body.appendChild(prefixEl);
@@ -98,10 +129,25 @@ const observer = new MutationObserver(records => {
 			request.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 			request.onreadystatechange = function () {
 				if (request.readyState != 4) {
-					// console.log("now pr info requeset sending...");
+					console.log("now pr info requeset sending...");
+					const existPrNowLoadingElement = document.getElementById(`${prefix}-now-loading-pr-${prNumber}`);
+					if (existPrNowLoadingElement == null) {
+						const prNowLoadingElement = document.createElement("div");
+						prNowLoadingElement.className == `${prefix}-now-loading`;
+						prNowLoadingElement.id = `${prefix}-now-loading-pr-${prNumber}`;
+						document.body.appendChild(prNowLoadingElement);
+					}
 				} else if (request.status != 200) {
 					console.error(`Github API fail! status=${request.status}`);
+					const existPrNowLoadingElement = document.getElementById(`${prefix}-now-loading-commit-${commitHash}`);
+					if (existPrNowLoadingElement != null) {
+						existPrNowLoadingElement.parentNode.removeChild(existPrNowLoadingElement);
+					}
 				} else {
+					const existPrNowLoadingElement = document.getElementById(`${prefix}-now-loading-commit-${commitHash}`);
+					if (existPrNowLoadingElement != null) {
+						existPrNowLoadingElement.parentNode.removeChild(existPrNowLoadingElement);
+					}
 					const commitInfo = request.responseText;
 					const commitInfoJson = JSON.parse(commitInfo);
 					const commitFilesInfoJson = commitInfoJson.files;
@@ -119,10 +165,25 @@ const observer = new MutationObserver(records => {
 						rawFileRequest.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 						rawFileRequest.onreadystatechange = function () {
 							if (rawFileRequest.readyState !== 4) {
-								// console.log("now raw file info requeset sending...");
+								console.log("now raw file info requeset sending...");
+								const existFileNowLoadingElement = document.getElementById(`${prefix}-now-loading-file-${diffHash}`);
+								if (existFileNowLoadingElement == null) {
+									const fileNowLoadingElement = document.createElement("div");
+									fileNowLoadingElement.className == `${prefix}-now-loading`;
+									fileNowLoadingElement.id = `${prefix}-now-loading-file-${diffHash}`;
+									document.body.appendChild(fileNowLoadingElement);
+								}
 							} else if (rawFileRequest.status != 200) {
 								console.error(`Github API fail! status=${request.status}`);
+								const existFileNowLoadingElement = document.getElementById(`${prefix}-now-loading-file-${diffHash}`);
+								if (existFileNowLoadingElement != null) {
+									existFileNowLoadingElement.parentNode.removeChild(existFileNowLoadingElement);
+								}
 							} else if (diffPatch == null) {
+								const existFileNowLoadingElement = document.getElementById(`${prefix}-now-loading-file-${diffHash}`);
+								if (existFileNowLoadingElement != null) {
+									existFileNowLoadingElement.parentNode.removeChild(existFileNowLoadingElement);
+								}
 								const existDiffLimitErrorWrapperElement = document.getElementById(`${prefix}-${diffHash}-diff-limit-error`);
 								if (existDiffLimitErrorWrapperElement != null) {
 									existDiffLimitErrorWrapperElement.parentNode.removeChild(existDiffLimitErrorWrapperElement);
