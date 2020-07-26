@@ -20,7 +20,7 @@ const observer = new MutationObserver(records => {
 			request.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 			request.onreadystatechange = function () {
 				if (request.readyState != 4) {
-					// console.log("now pr info requeset sending...");
+					 console.log("now pr info requeset sending...");
 				} else if (request.status != 200) {
 					console.error(`Github API fail! status=${request.status}`)
 				} else {
@@ -44,19 +44,28 @@ const observer = new MutationObserver(records => {
 							} else if (rawFileRequest.status != 200) {
 								console.error(`Github API fail! status=${request.status}`);
 							} else if (diffPatch == null) {
+								const existDiffLimitErrorWrapperElement = document.getElementById(`${prefix}-${diffHash}-diff-limit-error`);
+								if(existDiffLimitErrorWrapperElement != null) {
+									existDiffLimitErrorWrapperElement.parentNode.removeChild(existDiffLimitErrorWrapperElement);
+								}
+								const diffLimitErrorWrapperElement = document.createElement("div");
+								diffLimitErrorWrapperElement.id = `${prefix}-${diffHash}-diff-limit-error`;
+								fileContainerElement.appendChild(diffLimitErrorWrapperElement);
+
 								const divideEl = document.createElement("hr");
-								fileContainerElement.appendChild(divideEl);
+								diffLimitErrorWrapperElement.appendChild(divideEl);
 
 								const extensionDescriptionEl = document.createElement("p");
 								extensionDescriptionEl.innerHTML = "Github Jupyter diff viewer extension";
 								extensionDescriptionEl.style.backgroundColor = "#ffcc99";
-								fileContainerElement.appendChild(extensionDescriptionEl);
+								diffLimitErrorWrapperElement.appendChild(extensionDescriptionEl);
 
 								const diffLimitErrorElement = document.createElement("p");
 								diffLimitErrorElement.className = prefix;
 								diffLimitErrorElement.innerHTML = "This diff may be too large to display on GitHub";
 								diffLimitErrorElement.style.color = "red";
-								fileContainerElement.appendChild(diffLimitErrorElement);
+								diffLimitErrorElement.id = `${prefix}-${diffHash}-diff-limit-error`;
+								diffLimitErrorWrapperElement.appendChild(diffLimitErrorElement);
 							} else {
 								const existDiffElement = document.getElementById(`${prefix}-${diffHash}`);
 								if (existDiffElement != null) {
@@ -114,19 +123,28 @@ const observer = new MutationObserver(records => {
 							} else if (rawFileRequest.status != 200) {
 								console.error(`Github API fail! status=${request.status}`);
 							} else if (diffPatch == null) {
+								const existDiffLimitErrorWrapperElement = document.getElementById(`${prefix}-${diffHash}-diff-limit-error`);
+								if(existDiffLimitErrorWrapperElement != null) {
+									existDiffLimitErrorWrapperElement.parentNode.removeChild(existDiffLimitErrorWrapperElement);
+								}
+								const diffLimitErrorWrapperElement = document.createElement("div");
+								diffLimitErrorWrapperElement.id = `${prefix}-${diffHash}-diff-limit-error`;
+								fileContainerElement.appendChild(diffLimitErrorWrapperElement);
+
 								const divideEl = document.createElement("hr");
-								fileContainerElement.appendChild(divideEl);
+								diffLimitErrorWrapperElement.appendChild(divideEl);
 
 								const extensionDescriptionEl = document.createElement("p");
 								extensionDescriptionEl.innerHTML = "Github Jupyter diff viewer extension";
 								extensionDescriptionEl.style.backgroundColor = "#ffcc99";
-								fileContainerElement.appendChild(extensionDescriptionEl);
+								diffLimitErrorWrapperElement.appendChild(extensionDescriptionEl);
 
 								const diffLimitErrorElement = document.createElement("p");
 								diffLimitErrorElement.className = prefix;
 								diffLimitErrorElement.innerHTML = "This diff may be too large to display on GitHub";
 								diffLimitErrorElement.style.color = "red";
-								fileContainerElement.appendChild(diffLimitErrorElement);
+								diffLimitErrorElement.id = `${prefix}-${diffHash}-diff-limit-error`;
+								diffLimitErrorWrapperElement.appendChild(diffLimitErrorElement);
 							} else {
 								const existDiffElement = document.getElementById(`${prefix}-${diffHash}`);
 								if (existDiffElement != null) {
