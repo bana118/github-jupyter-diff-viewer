@@ -73,7 +73,7 @@ const observer = new MutationObserver(records => {
 			};
 			request.send(null);
 		});
-	}else if((commitPattern.test(location.href) || pullRequestCommitPattern.test(location.href)) && document.getElementById(prefix) == null){
+	} else if ((commitPattern.test(location.href) || pullRequestCommitPattern.test(location.href)) && document.getElementById(prefix) == null) {
 		const prefixEl = document.createElement("div");
 		prefixEl.id = prefix;
 		document.body.appendChild(prefixEl);
