@@ -245,6 +245,7 @@ observer.observe(target, {
  * @param {string} hash - Diff identifier from Github
  * @param {string} rawJupyterText - All jupyter file text(json) from Github
  * @param {string} patch - Diff information from Github
+ * @return {HTMLDivElement} An HTML element that displays a Diff of a Jupyter file's code and markdown section
  */
 function createDiffElement(hash, rawJupyterText, patch) {
 	const diffInfo = parse(rawJupyterText, patch);
@@ -385,7 +386,7 @@ function createDiffElement(hash, rawJupyterText, patch) {
 }
 
 /**
- * Returns a double array of Diff types, Diff and line numbers
+ * Returns a double array of diff types, diff and line numbers
  * "type" is "code" or "markdown"
  * "count" is code block number(In[x]) only in "code" type
  * "text" is one line code
@@ -401,6 +402,7 @@ function createDiffElement(hash, rawJupyterText, patch) {
  * ]
  * @param {string} allJupyterText - All jupyter file text(json) from Github
  * @param {string} patch - Diff information from Github
+ * @return {Array<Array<Object>>} Diff types, diff and line numbers
  */
 function parse(allJupyterText, patch) {
 	const diffInfoList = [];
@@ -544,6 +546,7 @@ function parse(allJupyterText, patch) {
  * 	}
  * ]
  * @param {string} jupyter - All jupyter file text(json) from Github
+ * @return {Array<Object>} Code block in jupyter file text
  */
 function extractSourceFromJupyter(jupyter) {
 	const sourceList = [];
