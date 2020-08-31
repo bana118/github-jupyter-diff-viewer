@@ -36,7 +36,6 @@ const observer = new MutationObserver(records => {
 			request.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 			request.onreadystatechange = function () {
 				if (request.readyState != 4) {
-					// console.log("now pr info requeset sending...");
 					const existPrNowLoadingElement = document.getElementById(`${prefix}-now-loading-pr-${prNumber}`);
 					if (existPrNowLoadingElement == null) {
 						const prNowLoadingElement = document.createElement("div");
@@ -71,7 +70,6 @@ const observer = new MutationObserver(records => {
 						rawFileRequest.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 						rawFileRequest.onreadystatechange = function () {
 							if (rawFileRequest.readyState !== 4) {
-								// console.log("now raw file info requeset sending...");
 								const existFileNowLoadingElement = document.getElementById(`${prefix}-now-loading-file-${diffHash}`);
 								if (existFileNowLoadingElement == null) {
 									const fileNowLoadingElement = document.createElement("div");
@@ -144,7 +142,6 @@ const observer = new MutationObserver(records => {
 			request.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 			request.onreadystatechange = function () {
 				if (request.readyState != 4) {
-					// console.log("now pr info requeset sending...");
 					const existPrNowLoadingElement = document.getElementById(`${prefix}-now-loading-pr-${commitHash}`);
 					if (existPrNowLoadingElement == null) {
 						const prNowLoadingElement = document.createElement("div");
@@ -180,7 +177,6 @@ const observer = new MutationObserver(records => {
 						rawFileRequest.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 						rawFileRequest.onreadystatechange = function () {
 							if (rawFileRequest.readyState !== 4) {
-								// console.log("now raw file info requeset sending...");
 								const existFileNowLoadingElement = document.getElementById(`${prefix}-now-loading-file-${diffHash}`);
 								if (existFileNowLoadingElement == null) {
 									const fileNowLoadingElement = document.createElement("div");
@@ -244,6 +240,12 @@ observer.observe(target, {
 	subtree: true
 });
 
+/**
+ * Create an HTML element that displays a Diff of a Jupyter file's code and markdown section
+ * @param {string} hash - Diff identifier from Github
+ * @param {string} rawJupyterText - All jupyter file text(json) from Github
+ * @param {string} patch - Diff information from Github
+ */
 function createDiffElement(hash, rawJupyterText, patch) {
 	const diffInfo = parse(rawJupyterText, patch);
 	const diffElement = document.createElement("div");
@@ -382,6 +384,24 @@ function createDiffElement(hash, rawJupyterText, patch) {
 	return diffElement;
 }
 
+/**
+ * Returns a double array of Diff types, Diff and line numbers
+ * "type" is "code" or "markdown"
+ * "count" is code block number(In[x]) only in "code" type
+ * "text" is one line code
+ * "prev_line" is line numbers based on the old code
+ * "now_line" is line numbers based on the new code
+ * e.g.
+ * [
+ * 	[
+ * 	  {
+ * 		"type": "code", "count": 1, "text": "hogehoge", "prev_line": 2, "now_line": 3
+ * 	  }
+ * 	]
+ * ]
+ * @param {string} allJupyterText - All jupyter file text(json) from Github
+ * @param {string} patch - Diff information from Github
+ */
 function parse(allJupyterText, patch) {
 	const diffInfoList = [];
 	const lineInfoRegs = /@@ [-+]\d+,\d+ [-+]\d+,\d+ @@\n/g;
@@ -512,10 +532,24 @@ function parse(allJupyterText, patch) {
 	return diffInfoList;
 }
 
+/**
+ * Return code or markdown block in jupyter file text
+ * "type" is "code" or "markdown"
+ * "count" is code block number(In[x]) only in "code" type
+ * "start" is the line number where the code part begins in the raw jupyter file
+ * "end" is the line number where the code part ends in the raw jupyter file
+ * [
+ * 	{
+ * 	  "type": "code", "count": 1, "start": 10, "end": 11, "source": ["hogehoge", "fugafuga"]
+ * 	}
+ * ]
+ * @param {string} jupyter - All jupyter file text(json) from Github
+ */
 function extractSourceFromJupyter(jupyter) {
 	const sourceList = [];
 	const typeRegs = /"cell_type": "(.+)",/;
 	const sourceStartRegs = /"source": \[/;
+	const emptyStartRegs = /"source": \[\]/;
 	const sourceEndRegs = /^(?! *") *\]/;
 	let extractState = "skip"; // skip, type, source
 	let type = null;
@@ -538,7 +572,7 @@ function extractSourceFromJupyter(jupyter) {
 				sourceJson["count"] = execCount;
 				execCount += 1;
 			}
-		} else if (sourceStartRegs.test(line)) {
+		} else if (sourceStartRegs.test(line) && !emptyStartRegs.test(line)) {
 			if (extractState != "type") {
 				console.error(`line: ${lineNumber}, Jupyter extract error! extractState required: type, but found ${extractState}`);
 			}
@@ -547,8 +581,8 @@ function extractSourceFromJupyter(jupyter) {
 		} else if (sourceEndRegs.test(line)) {
 			if (extractState == "source") {
 				extractState = "skip";
-				sourceJson["source"] = sourceLines;
 				sourceJson["end"] = lineNumber;
+				sourceJson["source"] = sourceLines;
 				sourceList.push(sourceJson);
 				sourceJson = {};
 				sourceLines = [];
