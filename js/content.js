@@ -549,6 +549,7 @@ function extractSourceFromJupyter(jupyter) {
 	const sourceList = [];
 	const typeRegs = /"cell_type": "(.+)",/;
 	const sourceStartRegs = /"source": \[/;
+	const emptyStartRegs = /"source": \[\]/;
 	const sourceEndRegs = /^(?! *") *\]/;
 	let extractState = "skip"; // skip, type, source
 	let type = null;
@@ -571,7 +572,7 @@ function extractSourceFromJupyter(jupyter) {
 				sourceJson["count"] = execCount;
 				execCount += 1;
 			}
-		} else if (sourceStartRegs.test(line)) {
+		} else if (sourceStartRegs.test(line) && !emptyStartRegs.test(line)) {
 			if (extractState != "type") {
 				console.error(`line: ${lineNumber}, Jupyter extract error! extractState required: type, but found ${extractState}`);
 			}
