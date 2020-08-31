@@ -71,7 +71,6 @@ const observer = new MutationObserver(records => {
 						rawFileRequest.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 						rawFileRequest.onreadystatechange = function () {
 							if (rawFileRequest.readyState !== 4) {
-								// console.log("now raw file info requeset sending...");
 								const existFileNowLoadingElement = document.getElementById(`${prefix}-now-loading-file-${diffHash}`);
 								if (existFileNowLoadingElement == null) {
 									const fileNowLoadingElement = document.createElement("div");
