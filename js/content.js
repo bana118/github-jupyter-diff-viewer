@@ -36,7 +36,6 @@ const observer = new MutationObserver(records => {
 			request.setRequestHeader("Accept", "application/vnd.github.v3.raw");
 			request.onreadystatechange = function () {
 				if (request.readyState != 4) {
-					// console.log("now pr info requeset sending...");
 					const existPrNowLoadingElement = document.getElementById(`${prefix}-now-loading-pr-${prNumber}`);
 					if (existPrNowLoadingElement == null) {
 						const prNowLoadingElement = document.createElement("div");
