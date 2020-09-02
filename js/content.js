@@ -63,6 +63,11 @@ const observer = new MutationObserver(records => {
 						const fileHeaderElement = document.querySelector(`[data-path="${jupyterFileInfoJson.filename}"]`);
 						const diffHash = fileHeaderElement.dataset.anchor;
 						const fileContainerElement = document.getElementById(diffHash);
+						const existLoaderElement = document.getElementById(`${prefix}-${diffHash}-loader`);
+						if (existLoaderElement == null) {
+							const loaderElement = createLoaderElement(diffHash);
+							fileContainerElement.appendChild(loaderElement);
+						}
 						const diffPatch = jupyterFileInfoJson.patch;
 						const rawFileRequest = new XMLHttpRequest();
 						rawFileRequest.open("GET", blobUrl);
@@ -82,6 +87,9 @@ const observer = new MutationObserver(records => {
 								const existFileNowLoadingElement = document.getElementById(`${prefix}-now-loading-file-${diffHash}`);
 								if (existFileNowLoadingElement != null) {
 									existFileNowLoadingElement.parentNode.removeChild(existFileNowLoadingElement);
+								}
+								if (existLoaderElement != null) {
+									removeLoaderElement(diffHash);
 								}
 							} else if (diffPatch == null) {
 								const existFileNowLoadingElement = document.getElementById(`${prefix}-now-loading-file-${diffHash}`);
@@ -110,6 +118,9 @@ const observer = new MutationObserver(records => {
 								diffLimitErrorElement.style.color = "red";
 								diffLimitErrorElement.id = `${prefix}-${diffHash}-diff-limit-error`;
 								diffLimitErrorWrapperElement.appendChild(diffLimitErrorElement);
+								if (existLoaderElement != null) {
+									removeLoaderElement(diffHash);
+								}
 							} else {
 								const existDiffElement = document.getElementById(`${prefix}-${diffHash}`);
 								if (existDiffElement != null) {
@@ -117,6 +128,9 @@ const observer = new MutationObserver(records => {
 								}
 								const diffElement = createDiffElement(diffHash, rawFileRequest.responseText, diffPatch);
 								fileContainerElement.appendChild(diffElement);
+								if (existLoaderElement != null) {
+									removeLoaderElement(diffHash);
+								}
 							}
 						}
 						rawFileRequest.send(null);
@@ -170,6 +184,11 @@ const observer = new MutationObserver(records => {
 						const fileHeaderElement = document.querySelector(`[data-path="${jupyterFileInfoJson.filename}"]`);
 						const diffHash = fileHeaderElement.dataset.anchor;
 						const fileContainerElement = document.getElementById(diffHash);
+						const existLoaderElement = document.getElementById(`${prefix}-${diffHash}-loader`);
+						if (existLoaderElement == null) {
+							const loaderElement = createLoaderElement(diffHash);
+							fileContainerElement.appendChild(loaderElement);
+						}
 						const diffPatch = jupyterFileInfoJson.patch;
 						const rawFileRequest = new XMLHttpRequest();
 						rawFileRequest.open("GET", blobUrl);
@@ -189,6 +208,9 @@ const observer = new MutationObserver(records => {
 								const existFileNowLoadingElement = document.getElementById(`${prefix}-now-loading-file-${diffHash}`);
 								if (existFileNowLoadingElement != null) {
 									existFileNowLoadingElement.parentNode.removeChild(existFileNowLoadingElement);
+								}
+								if (existLoaderElement != null) {
+									removeLoaderElement(diffHash);
 								}
 							} else if (diffPatch == null) {
 								const existFileNowLoadingElement = document.getElementById(`${prefix}-now-loading-file-${diffHash}`);
@@ -217,6 +239,9 @@ const observer = new MutationObserver(records => {
 								diffLimitErrorElement.style.color = "red";
 								diffLimitErrorElement.id = `${prefix}-${diffHash}-diff-limit-error`;
 								diffLimitErrorWrapperElement.appendChild(diffLimitErrorElement);
+								if (existLoaderElement != null) {
+									removeLoaderElement(diffHash);
+								}
 							} else {
 								const existDiffElement = document.getElementById(`${prefix}-${diffHash}`);
 								if (existDiffElement != null) {
@@ -224,6 +249,9 @@ const observer = new MutationObserver(records => {
 								}
 								const diffElement = createDiffElement(diffHash, rawFileRequest.responseText, diffPatch);
 								fileContainerElement.appendChild(diffElement);
+								if (existLoaderElement != null) {
+									removeLoaderElement(diffHash);
+								}
 							}
 						}
 						rawFileRequest.send(null);
@@ -240,18 +268,32 @@ observer.observe(target, {
 	subtree: true
 });
 
+function createLoaderElement(diffHash) {
+	const loaderElement = document.createElement("div");
+	loaderElement.className = "loader";
+	loaderElement.id = `${prefix}-${diffHash}-loader`;
+	return loaderElement;
+}
+
+function removeLoaderElement(diffHash) {
+	const loaderElement = document.getElementById(`${prefix}-${diffHash}-loader`);
+	if (loaderElement != null) {
+		loaderElement.parentNode.removeChild(loaderElement);
+	}
+}
+
 /**
  * Create an HTML element that displays a Diff of a Jupyter file's code and markdown section
- * @param {string} hash - Diff identifier from Github
+ * @param {string} diffHash - Diff identifier from Github
  * @param {string} rawJupyterText - All jupyter file text(json) from Github
  * @param {string} patch - Diff information from Github
  * @return {HTMLDivElement} An HTML element that displays a Diff of a Jupyter file's code and markdown section
  */
-function createDiffElement(hash, rawJupyterText, patch) {
+function createDiffElement(diffHash, rawJupyterText, patch) {
 	const diffInfo = parse(rawJupyterText, patch);
 	const diffElement = document.createElement("div");
 	diffElement.className = prefix;
-	diffElement.id = `${prefix}-${hash}`;
+	diffElement.id = `${prefix}-${diffHash}`;
 
 	const divideEl = document.createElement("hr");
 	diffElement.appendChild(divideEl);
