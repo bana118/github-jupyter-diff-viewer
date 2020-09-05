@@ -268,6 +268,11 @@ observer.observe(target, {
 	subtree: true
 });
 
+/**
+ * Create a HTML loader element
+ * @param {string} diffHash - Diff identifier from Github
+ * @return {HTMLDivElement} An HTML loader element
+ */
 function createLoaderElement(diffHash) {
 	const loaderElement = document.createElement("div");
 	loaderElement.className = "loader";
@@ -275,6 +280,10 @@ function createLoaderElement(diffHash) {
 	return loaderElement;
 }
 
+/**
+ * Remove a HTML loader element
+ * @param {string} diffHash - Diff identifier from Github
+ */
 function removeLoaderElement(diffHash) {
 	const loaderElement = document.getElementById(`${prefix}-${diffHash}-loader`);
 	if (loaderElement != null) {
@@ -283,11 +292,11 @@ function removeLoaderElement(diffHash) {
 }
 
 /**
- * Create an HTML element that displays a Diff of a Jupyter file's code and markdown section
+ * Create a HTML element that displays a Diff of a Jupyter file's code and markdown section
  * @param {string} diffHash - Diff identifier from Github
  * @param {string} rawJupyterText - All jupyter file text(json) from Github
  * @param {string} patch - Diff information from Github
- * @return {HTMLDivElement} An HTML element that displays a Diff of a Jupyter file's code and markdown section
+ * @return {HTMLDivElement} A HTML element that displays a Diff of a Jupyter file's code and markdown section
  */
 function createDiffElement(diffHash, rawJupyterText, patch) {
 	const diffInfo = parse(rawJupyterText, patch);
