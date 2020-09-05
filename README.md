@@ -12,3 +12,6 @@ Before
 
 After
 ![after](https://user-images.githubusercontent.com/43720583/88475022-20f91f80-cf67-11ea-95e0-ada915d4daee.png)
+
+## License
+[MIT License](https://github.com/bana118/github-jupyter-diff-viewer/blob/master/LICENSE)
