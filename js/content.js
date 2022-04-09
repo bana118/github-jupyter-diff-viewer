@@ -387,7 +387,7 @@ function createDiffElement(diffHash, rawJupyterText, patch) {
 				const codeWrapperSpanEl = document.createElement("span");
 				codeWrapperSpanEl.className = "blob-code-inner blob-code-marker"
 				codeWrapperSpanEl.dataset.codeMarker = marker;
-				codeWrapperSpanEl.insertAdjacentText("beforeend", code);
+				insertHighlightedCodeAsPython(codeWrapperSpanEl, code);
 				tdCodeEl.appendChild(codeWrapperSpanEl);
 			} else if (marker == "-") {
 				const tdNumLeftEl = document.createElement("td");
@@ -406,7 +406,7 @@ function createDiffElement(diffHash, rawJupyterText, patch) {
 				const codeWrapperSpanEl = document.createElement("span");
 				codeWrapperSpanEl.className = "blob-code-inner blob-code-marker"
 				codeWrapperSpanEl.dataset.codeMarker = marker;
-				codeWrapperSpanEl.insertAdjacentText("beforeend", code);
+				insertHighlightedCodeAsPython(codeWrapperSpanEl, code);
 				tdCodeEl.appendChild(codeWrapperSpanEl);
 			} else if (marker == "+") {
 				const tdNumLeftEl = document.createElement("td");
@@ -425,7 +425,7 @@ function createDiffElement(diffHash, rawJupyterText, patch) {
 				const codeWrapperSpanEl = document.createElement("span");
 				codeWrapperSpanEl.className = "blob-code-inner blob-code-marker"
 				codeWrapperSpanEl.dataset.codeMarker = marker;
-				codeWrapperSpanEl.insertAdjacentText("beforeend", code);
+				insertHighlightedCodeAsPython(codeWrapperSpanEl, code);
 				tdCodeEl.appendChild(codeWrapperSpanEl);
 			} else {
 				console.error(`Jupyter diff marker error! diff code marker must be space or + or -, but found ${marker}`);
@@ -645,4 +645,40 @@ function extractSourceFromJupyter(jupyter) {
 		lineNumber += 1;
 	}
 	return sourceList;
+}
+
+/**
+ * Inserts syntax-highlighted HTML code into the component
+ * @param {string} html - html component targeted to insert code
+ * @param {string} code - python code to be syntax highlighted
+ * @return {none}
+ */
+function insertHighlightedCodeAsPython( html, code ) {
+	// convert text to markdown python code block.
+	let mdtext = '```python' + '\n' + code + '\n' + '```'
+	chrome.storage.local.get(null, function (items) {
+		const token = items.githubAccessToken;
+		let xhr = new XMLHttpRequest();
+		xhr.open('POST', 'https://api.github.com/markdown/raw');
+		xhr.setRequestHeader("Authorization", `token ${token}`);
+		xhr.setRequestHeader('Content-Type', 'text/plain');
+		xhr.send(mdtext);
+		xhr.onreadystatechange = function() {
+			if ( xhr.readyState == 4 ) {
+				if ( xhr.status == 200 ) {
+					// response OK.
+					let retText = xhr.responseText;
+          retText = retText.replace("<pre>", "")
+          retText = retText.replace("</pre>", "")
+          retText = retText.replace("<div ", "<span ")
+          retText = retText.replace("</div>", "</span>")
+					html.insertAdjacentHTML("beforeend", retText);
+				} else {
+					console.log(xhr.status);
+					html.insertAdjacentHTML("beforeend", code);
+				};
+			};
+		};
+	});
+	return;
 }
