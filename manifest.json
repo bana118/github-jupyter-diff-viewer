@@ -1,6 +1,6 @@
 {
   "name": "Github Jupyter diff viewer",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "manifest_version": 2,
   "description": "Diff viewer for jupyter file(*.ipynb) in Github",
   "permissions": [
