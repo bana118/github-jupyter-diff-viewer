@@ -1,0 +1,22 @@
+name: Check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Check git tag
+        uses: bana118/action-autotag@2d64822393af6f3f9db06ad3d1a51c6d756ac2f5
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        with:
+          strategy: regex
+          regex_pattern: "\"version\": \"(?<version>\\d+\\.\\d+\\.\\d+(.+)?)\"\\n?"
+          root: "manifest.json"
+          dry_run: true
