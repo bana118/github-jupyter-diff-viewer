@@ -18,6 +18,5 @@ jobs:
         with:
           strategy: regex
           regex_pattern: "\"version\": \"(?<version>\\d+\\.\\d+\\.\\d+(.+)?)\"\\n?"
-          root: "public/manifest.json"
-          tag_prefix: "v"
+          root: "manifest.json"
           dry_run: true
